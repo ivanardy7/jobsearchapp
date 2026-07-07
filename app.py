@@ -89,7 +89,7 @@ if is_auth_configured:
                 st.login("google")
         st.stop()
 else:
-    if not st.session_state.bypass_login and not st.user.is_logged_in:
+    if not st.session_state.bypass_login:
         st.markdown("""
             <div class="hero-container animate-fade-in" style="max-width: 650px; margin: 60px auto; padding: 40px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-glow);">
                 <div style="font-size: 3rem; margin-bottom: 20px; text-align: center;">🎯</div>
@@ -106,14 +106,21 @@ else:
                         <li>Masukkan <strong>Client ID</strong> dan <strong>Client Secret</strong> Anda ke dalamnya.</li>
                     </ol>
                 </div>
+                <div style="text-align: center;">
+                    <form method="get">
+                        <button name="bypass" value="true" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 16px; border-radius: 8px; cursor: pointer;">
+                            Bypass Login (Lokal Mode)
+                        </button>
+                    </form>
+                </div>
             </div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("Bypass Login (Developer Mode) →", type="secondary", use_container_width=True):
-                st.session_state.bypass_login = True
-                st.rerun()
+        # Handle bypass parameter from url or button
+        query_params = st.query_params
+        if query_params.get("bypass") == "true" or st.button("Masuk Mode Lokal (Bypass)", type="secondary", use_container_width=True):
+            st.session_state.bypass_login = True
+            st.rerun()
         st.stop()
 
 
