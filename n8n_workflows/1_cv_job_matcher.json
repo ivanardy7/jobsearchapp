@@ -1,0 +1,96 @@
+{
+  "name": "1 - CV Job Matcher",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-match",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-job-match",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "job-match"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah AI Job Recommendation Expert yang membantu mencocokkan CV seseorang dengan lowongan pekerjaan yang tersedia.\n\nTugasmu:\n1. Analisis profil/skill dari CV user\n2. Lihat daftar lowongan pekerjaan yang ditemukan\n3. Jelaskan kenapa setiap lowongan cocok dengan profil user\n4. Beri ranking dan match score\n\nJawab dalam Bahasa Indonesia. Gunakan format yang jelas dan terstruktur."
+            },
+            {
+              "role": "user",
+              "content": "=Berikut adalah CV user:\n---\n{{ $json.body.cv_text }}\n---\n\nBerikut adalah lowongan pekerjaan yang ditemukan berdasarkan kecocokan:\n{{ $json.body.jobs_context }}\n\nBerikan analisis singkat:\n1. Skill utama apa yang kamu lihat dari CV ini?\n2. Untuk setiap lowongan, jelaskan dalam 1-2 kalimat kenapa cocok/tidak cocok\n3. Rekomendasikan top 3 lowongan paling cocok beserta alasannya"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 2000
+        }
+      },
+      "id": "openai-job-match",
+      "name": "OpenAI Chat",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [500, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-job-match",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [750, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}

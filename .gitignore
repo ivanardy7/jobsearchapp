@@ -1,0 +1,22 @@
+# Credentials & Secrets
+.env
+.streamlit/secrets.toml
+.streamlit/config.toml
+
+# Python Cache & Compilation
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE & Virtual Environments
+.venv/
+venv/
+ENV/
+.idea/
+.vscode/
+
+# Local/Presentation Documents
+JobMatch_AI_Presentation.pptx
+rule/
+*.docx
+*.pdf

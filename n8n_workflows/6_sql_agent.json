@@ -1,0 +1,196 @@
+{
+  "name": "6 - SQL Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sql-query",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "id": "webhook-sql-query",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "sql-query"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-explain",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "explain",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-explain",
+      "name": "If Explain",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah SQL Query Generator. Tugasmu mengubah pertanyaan user tentang data lowongan pekerjaan menjadi SQL query.\n\nDatabase schema:\nTable: jobs\nColumns:\n- id (INTEGER, primary key)\n- job_title (VARCHAR) — judul pekerjaan\n- company_name (VARCHAR) — nama perusahaan\n- location (VARCHAR) — lokasi kerja\n- work_type (VARCHAR) — tipe: 'Full time', 'Paruh waktu', 'Kontrak/Temporer', 'Kasual'\n- salary_raw (VARCHAR) — gaji dalam format text asli\n- salary_min (FLOAT, nullable) — gaji minimum dalam Rupiah\n- salary_max (FLOAT, nullable) — gaji maximum dalam Rupiah\n- job_description (TEXT) — deskripsi pekerjaan\n- scrape_timestamp (VARCHAR) — timestamp scraping\n\nRules:\n1. Hanya generate SELECT queries (READ-ONLY). JANGAN buat INSERT, UPDATE, DELETE, DROP, ALTER.\n2. Jawab HANYA dengan SQL query, tanpa penjelasan lain.\n3. Gunakan LIKE untuk pencarian text (case-insensitive pakai LOWER()).\n4. Limit results ke 20 jika tidak disebutkan.\n5. Salary dalam Rupiah (contoh: 10000000 = Rp 10.000.000).\n6. Untuk pertanyaan agregat, gunakan COUNT, AVG, MIN, MAX, GROUP BY sesuai kebutuhan."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.body.question }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0,
+          "maxTokens": 500
+        }
+      },
+      "id": "openai-sql-generate",
+      "name": "OpenAI SQL Generate",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [750, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Kamu adalah data analyst. Jelaskan hasil query database ini dalam Bahasa Indonesia dengan ringkas dan informatif."
+            },
+            {
+              "role": "user",
+              "content": "=Pertanyaan: {{ $json.body.question }}\nSQL: {{ $json.body.sql_query }}\nHasil ({{ $json.body.result_count }} rows): {{ $json.body.results }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.5,
+          "maxTokens": 800
+        }
+      },
+      "id": "openai-sql-explain",
+      "name": "OpenAI SQL Explain",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [750, 400],
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-sql-generate",
+      "name": "Respond Generate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"output\": $json.message.content } }}"
+      },
+      "id": "respond-sql-explain",
+      "name": "Respond Explain",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If Explain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Explain": {
+      "main": [
+        [
+          {
+            "node": "OpenAI SQL Explain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI SQL Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI SQL Generate": {
+      "main": [
+        [
+          {
+            "node": "Respond Generate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI SQL Explain": {
+      "main": [
+        [
+          {
+            "node": "Respond Explain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "JobMatch AI"
+    }
+  ]
+}
