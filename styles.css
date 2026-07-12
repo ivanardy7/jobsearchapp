@@ -494,8 +494,9 @@ footer {
     visibility: hidden;
 }
 
-header {
-    visibility: hidden;
+/* Hide Streamlit top-right menus but keep top-left sidebar toggle button */
+div[data-testid="stHeaderActionElements"] {
+    display: none !important;
 }
 
 /* ── Animations ──────────────────────────────────────────── */
