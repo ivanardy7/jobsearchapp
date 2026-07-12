@@ -417,12 +417,30 @@ if st.session_state.current_step == 0:
                         cv_text = extract_cv_text(file_bytes, uploaded_file.name)
                         file_info = get_file_info(file_bytes, uploaded_file.name)
 
+                        # Check if this is a DIFFERENT CV than the previous one
+                        old_cv_text = st.session_state.get("cv_text", "")
+                        is_new_cv = (cv_text != old_cv_text) and old_cv_text != ""
+
                         # Save to session state
                         st.session_state.cv_uploaded = True
                         st.session_state.cv_text = cv_text
                         st.session_state.cv_filename = uploaded_file.name
                         st.session_state.cv_file_info = file_info
                         st.session_state.cv_bytes = file_bytes
+
+                        # If user uploaded a DIFFERENT CV, reset all downstream results
+                        if is_new_cv:
+                            st.session_state.job_matches = []
+                            st.session_state.ai_summary = None
+                            st.session_state.selected_job = None
+                            st.session_state.cv_feedback = None
+                            st.session_state.ats_cv_text = None
+                            st.session_state.career_chat_history = []
+                            st.session_state.interview_history = []
+                            st.session_state.interview_job = None
+                            st.session_state.interview_started = False
+                            st.session_state.internet_jobs = []
+                            st.toast("🔄 CV baru terdeteksi! Data lowongan & analisis sebelumnya telah di-reset.", icon="🔄")
 
                         st.success("✅ CV berhasil di-upload dan dibaca!")
 
