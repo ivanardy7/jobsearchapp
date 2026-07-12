@@ -264,14 +264,6 @@ with st.sidebar:
         go_to_step(0)
         st.rerun()
 
-    # Arrow Down Connector
-    st.markdown(
-        """<div style='text-align:center; color:rgba(255,255,255,0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
-            ↓
-        </div>""",
-        unsafe_allow_html=True
-    )
-
     # 2. Lowongan Kerja
     is_active, is_completed, is_locked, prefix = get_step_status(1)
     if st.button(
@@ -284,16 +276,8 @@ with st.sidebar:
         go_to_step(1)
         st.rerun()
 
-    # Clean vertical spacing instead of the complex SVG diagram
-    st.markdown("<div style='margin-top: 6px;'></div>", unsafe_allow_html=True)
-
-    # Arrow Down Connector (between step 2 and 3)
-    st.markdown(
-        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
-            ↓
-        </div>""",
-        unsafe_allow_html=True
-    )
+    # Clean vertical spacing (visual separator between main steps and tool steps)
+    st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
 
     # 3. Review & Generate CV (Vertically Stacked)
     is_active, is_completed, is_locked, prefix = get_step_status(2)
@@ -307,14 +291,6 @@ with st.sidebar:
         go_to_step(2)
         st.rerun()
 
-    # Arrow Down Connector
-    st.markdown(
-        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
-            ↓
-        </div>""",
-        unsafe_allow_html=True
-    )
-
     # 4. Konsultasi Karir (Vertically Stacked)
     is_active, is_completed, is_locked, prefix = get_step_status(3)
     if st.button(
@@ -326,14 +302,6 @@ with st.sidebar:
     ):
         go_to_step(3)
         st.rerun()
-
-    # Arrow Down Connector
-    st.markdown(
-        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
-            ↓
-        </div>""",
-        unsafe_allow_html=True
-    )
 
     # 5. Mock Interview (Vertically Stacked)
     is_active, is_completed, is_locked, prefix = get_step_status(4)
