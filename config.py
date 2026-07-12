@@ -11,23 +11,39 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).parent
 load_dotenv(BASE_DIR / ".env")
 
+# Helper to get configuration from environment or streamlit secrets
+def _get_config(key: str, default: str = "") -> str:
+    # 1. Try OS Environment
+    val = os.getenv(key)
+    if val:
+        return val
+    # 2. Try Streamlit Secrets fallback
+    try:
+        import streamlit as st
+        if key in st.secrets:
+            return str(st.secrets[key])
+    except Exception:
+        pass
+    return default
+
 # ─── OpenAI ───────────────────────────────────────────────
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
-OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+OPENAI_API_KEY = _get_config("OPENAI_API_KEY", "")
+OPENAI_MODEL = _get_config("OPENAI_MODEL", "gpt-4o")
+OPENAI_EMBEDDING_MODEL = _get_config("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 
 # ─── Database ─────────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DATABASE_URL = _get_config("DATABASE_URL", "")
 
 # ─── Vector Store ─────────────────────────────────────────
-QDRANT_URL = os.getenv("QDRANT_URL", "")
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+QDRANT_URL = _get_config("QDRANT_URL", "")
+QDRANT_API_KEY = _get_config("QDRANT_API_KEY", "")
 COLLECTION_NAME = "indonesian_jobs"
 
 
 # ─── N8N ──────────────────────────────────────────────────
-N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
-USE_N8N = os.getenv("USE_N8N", "false").lower() == "true"
+N8N_WEBHOOK_URL = _get_config("N8N_WEBHOOK_URL", "")
+USE_N8N = _get_config("USE_N8N", "false").lower() == "true"
+
 
 # ─── Dataset ──────────────────────────────────────────────
 DATASET_PATH = BASE_DIR / "Dataset" / "jobs.jsonl"
