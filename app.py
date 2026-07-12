@@ -935,13 +935,22 @@ elif st.session_state.current_step == 3:
                 </div>"""
             st.markdown(welcome_msg, unsafe_allow_html=True)
 
-        # Chat input
-        user_input = st.chat_input("Ketik pesan kamu di sini...")
+        # Chat input (using text_input inside form for normal document flow)
+        with st.form(key="career_chat_form", clear_on_submit=True):
+            col_input, col_btn = st.columns([6, 1])
+            with col_input:
+                user_input = st.text_input(
+                    "Pesan",
+                    placeholder="Ketik pesan kamu di sini...",
+                    label_visibility="collapsed",
+                )
+            with col_btn:
+                submitted = st.form_submit_button("➤", use_container_width=True)
 
-        if user_input:
+        if submitted and user_input and user_input.strip():
             # Add user message
             st.session_state.career_chat_history.append(
-                {"role": "user", "content": user_input}
+                {"role": "user", "content": user_input.strip()}
             )
 
             # Get AI response
@@ -950,7 +959,7 @@ elif st.session_state.current_step == 3:
                 result = get_career_response(
                     cv_text=st.session_state.cv_text,
                     chat_history=st.session_state.career_chat_history[:-1],  # exclude last
-                    user_message=user_input,
+                    user_message=user_input.strip(),
                     target_job=st.session_state.selected_job,
                 )
 
@@ -965,9 +974,8 @@ elif st.session_state.current_step == 3:
 
             st.rerun()
 
-        # Reset button (Rename to "🔄 Ulangi Percakapan" and move below chat input)
+        # Reset button
         if st.session_state.career_chat_history:
-            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
             if st.button("🔄 Ulangi Percakapan", use_container_width=True):
                 st.session_state.career_chat_history = []
                 st.rerun()
