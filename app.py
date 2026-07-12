@@ -279,18 +279,20 @@ with st.sidebar:
         go_to_step(1)
         st.rerun()
 
-    # Beautiful SVG Branching Diagram (Styled for Light/Dark Mode)
+    # Beautiful SVG Branching Diagram (Styled for Light/Dark Mode with negative margins to match columns width)
     st.markdown(
-        """<svg width="100%" height="28" viewBox="0 0 100 28" style="display:block; margin: 2px auto;">
+        """<div style="margin-left: -15px; margin-right: -15px; margin-top: -6px; margin-bottom: -4px;">
+        <svg width="100%" height="28" viewBox="0 0 100 28" style="display:block; margin: 0 auto;">
           <line x1="50" y1="0" x2="50" y2="12" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
-          <line x1="16.0" y1="12" x2="84.0" y2="12" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
-          <line x1="16.0" y1="12" x2="16.0" y2="28" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
+          <line x1="16.6" y1="12" x2="83.3" y2="12" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
+          <line x1="16.6" y1="12" x2="16.6" y2="28" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
           <line x1="50" y1="12" x2="50" y2="28" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
-          <line x1="84.0" y1="12" x2="84.0" y2="28" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
-          <polygon points="16.0,28 13.0,23 19.0,23" fill="var(--text-primary)" opacity="0.35"/>
+          <line x1="83.3" y1="12" x2="83.3" y2="28" stroke="var(--text-primary)" stroke-width="2" opacity="0.35"/>
+          <polygon points="16.6,28 13.6,23 19.6,23" fill="var(--text-primary)" opacity="0.35"/>
           <polygon points="50,28 47,23 53,23" fill="var(--text-primary)" opacity="0.35"/>
-          <polygon points="84.0,28 81.0,23 87.0,23" fill="var(--text-primary)" opacity="0.35"/>
-        </svg>""",
+          <polygon points="83.3,28 80.3,23 86.3,23" fill="var(--text-primary)" opacity="0.35"/>
+        </svg>
+        </div>""",
         unsafe_allow_html=True
     )
 
