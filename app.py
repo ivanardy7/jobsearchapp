@@ -364,25 +364,27 @@ with st.sidebar:
     
     if user_name:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 10px 12px; margin-top: 16px; margin-bottom: 6px;">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 10px 12px; margin-top: 16px; margin-bottom: 0px;">
                 <div style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary); text-align: center;">
                     👤 {user_name}
                 </div>
             </div>""",
             unsafe_allow_html=True
         )
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True) # Force gap
         if st.button("🚪 Log Out", use_container_width=True, type="secondary", key="logout_btn"):
             st.logout()
             
     elif st.session_state.bypass_login:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 10px 12px; margin-top: 16px; margin-bottom: 6px;">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 10px 12px; margin-top: 16px; margin-bottom: 0px;">
                 <div style="font-weight: 700; font-size: 0.82rem; color: #d97706; text-align: center;">
                     🛠️ Developer Mode
                 </div>
             </div>""",
             unsafe_allow_html=True
         )
+        st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True) # Force gap
         if st.button("🚪 Kembali ke Login", use_container_width=True, type="secondary", key="dev_logout_btn"):
             st.session_state.bypass_login = False
             st.rerun()
