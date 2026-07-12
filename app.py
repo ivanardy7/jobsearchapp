@@ -1186,19 +1186,12 @@ elif st.session_state.current_step == 4:
                         st.code("pip install audio-recorder-streamlit")
                         st.info("Gunakan mode Text untuk sementara.")
 
-            # Reset interview
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("🔄 Reset Interview"):
-                    st.session_state.interview_started = False
-                    st.session_state.interview_history = []
-                    st.rerun()
-            with col2:
-                if st.button("🔄 Ganti Posisi"):
-                    st.session_state.interview_job = None
-                    st.session_state.interview_started = False
-                    st.session_state.interview_history = []
-                    st.rerun()
+            # Reset interview (Full width button, Ganti Posisi removed)
+            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Reset Interview", use_container_width=True):
+                st.session_state.interview_started = False
+                st.session_state.interview_history = []
+                st.rerun()
 
     # Navigation
     st.markdown("---")
