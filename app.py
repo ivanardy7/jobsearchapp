@@ -965,13 +965,14 @@ elif st.session_state.current_step == 3:
 
             st.rerun()
 
-        # Clear chat button
+        # Reset button (Rename to "🔄 Ulangi Percakapan" and move below chat input)
         if st.session_state.career_chat_history:
-            if st.button("🗑️ Hapus Riwayat Chat"):
+            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Ulangi Percakapan", use_container_width=True):
                 st.session_state.career_chat_history = []
                 st.rerun()
 
-    # Navigation
+    # Navigation (Placed below the reset button)
     st.markdown("---")
     col_l, col_m, col_r = st.columns([1, 2, 1])
     with col_l:
