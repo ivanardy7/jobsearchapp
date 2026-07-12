@@ -827,8 +827,18 @@ elif st.session_state.current_step == 2:
                             st.error("❌ Gagal membuat CV ATS.")
             else:
                 st.markdown("### 📄 Preview CV ATS")
+                # Clean up markdown code block wrappers if present
+                clean_ats_text = st.session_state.ats_cv_text.strip()
+                if clean_ats_text.startswith("```"):
+                    lines = clean_ats_text.splitlines()
+                    if lines[0].startswith("```"):
+                        lines = lines[1:]
+                    if lines and lines[-1].startswith("```"):
+                        lines = lines[:-1]
+                    clean_ats_text = "\n".join(lines).strip()
+
                 import markdown
-                html_cv = markdown.markdown(st.session_state.ats_cv_text)
+                html_cv = markdown.markdown(clean_ats_text)
                 st.markdown(
                     f'<div class="cv-paper">{html_cv}</div>',
                     unsafe_allow_html=True
@@ -841,7 +851,7 @@ elif st.session_state.current_step == 2:
                 with col1:
                     try:
                         from agents.cv_analyzer_agent import export_cv_to_docx
-                        docx_bytes = export_cv_to_docx(st.session_state.ats_cv_text)
+                        docx_bytes = export_cv_to_docx(clean_ats_text)
                         st.download_button(
                             "📄 Download Word (.docx)",
                             data=docx_bytes,
@@ -855,7 +865,7 @@ elif st.session_state.current_step == 2:
                 with col2:
                     try:
                         from agents.cv_analyzer_agent import export_cv_to_pdf
-                        pdf_bytes = export_cv_to_pdf(st.session_state.ats_cv_text)
+                        pdf_bytes = export_cv_to_pdf(clean_ats_text)
                         st.download_button(
                             "📑 Download PDF (.pdf)",
                             data=pdf_bytes,
