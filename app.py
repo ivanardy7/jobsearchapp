@@ -773,43 +773,39 @@ elif st.session_state.current_step == 2:
             icon="🔑",
         )
     else:
-        tab1, tab2 = st.tabs(["📊 Feedback & Saran", "📝 Generate CV ATS"])
-
-        # ── Tab 1: CV Feedback ──
-        with tab1:
-            if st.session_state.cv_feedback is None:
-                if st.button("🤖 Analisis CV Saya", type="primary", use_container_width=True):
-                    with st.spinner("🤖 AI sedang menganalisis CV kamu..."):
-                        from agents.cv_analyzer_agent import review_cv
-                        result = review_cv(st.session_state.cv_text, target_job=st.session_state.selected_job)
-                        if result["available"] and result["feedback"]:
-                            st.session_state.cv_feedback = result["feedback"]
-                            st.rerun()
-                        else:
-                            st.error("❌ Gagal menganalisis CV.")
-            else:
-                st.markdown(st.session_state.cv_feedback)
-
-                if st.button("🔄 Analisis Ulang"):
-                    st.session_state.cv_feedback = None
-                    st.rerun()
-
-        # ── Tab 2: ATS CV Generation ──
-        with tab2:
-            st.markdown(
-                """<div class="glass-card">
-                    <h4 style="color:var(--accent-emerald);">📝 Generate CV ATS-Friendly</h4>
-                    <p style="font-size:0.9rem; color:var(--text-secondary);">
-                        AI akan membuat versi CV kamu yang dioptimalkan untuk Applicant Tracking System (ATS).
-                        Kamu bisa download hasilnya dalam format Word atau PDF.
-                    </p>
-                </div>""",
-                unsafe_allow_html=True,
-            )
-
+        if st.session_state.cv_feedback is None:
+            if st.button("🤖 Analisis CV Saya", type="primary", use_container_width=True):
+                with st.spinner("🤖 AI sedang menganalisis CV kamu..."):
+                    from agents.cv_analyzer_agent import review_cv
+                    result = review_cv(st.session_state.cv_text, target_job=st.session_state.selected_job)
+                    if result["available"] and result["feedback"]:
+                        st.session_state.cv_feedback = result["feedback"]
+                        st.rerun()
+                    else:
+                        st.error("❌ Gagal menganalisis CV.")
+        else:
+            # 1. Display Feedback & Recommendations
+            st.markdown("### 📊 Hasil Feedback & Saran CV")
+            st.markdown(st.session_state.cv_feedback)
+            
+            st.markdown("---")
+            
+            # 2. Display ATS Generator Area (Follows the feedback section)
+            st.markdown("### 📝 Optimasi CV ke ATS-Friendly")
+            
             if st.session_state.ats_cv_text is None:
-                if st.button("✨ Generate CV ATS", type="primary", use_container_width=True):
-                    with st.spinner("✨ AI sedang membuat CV ATS-friendly..."):
+                st.markdown(
+                    """<div class="glass-card" style="margin-top: 5px; margin-bottom: 12px; padding: 18px;">
+                        <h4 style="color:var(--accent-blue); margin-top:0;">✨ Buat Versi CV ATS-Friendly</h4>
+                        <p style="font-size:0.88rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px;">
+                            AI akan menyusun ulang CV kamu agar ramah sistem ATS berdasarkan masukan/saran analisis di atas. 
+                            Format Markdown yang dihasilkan bisa didownload sebagai file Word (.docx) atau PDF.
+                        </p>
+                    </div>""",
+                    unsafe_allow_html=True
+                )
+                if st.button("✨ Generate CV ATS Berdasarkan Saran AI", type="primary", use_container_width=True):
+                    with st.spinner("✨ AI sedang menyusun versi ATS-friendly..."):
                         from agents.cv_analyzer_agent import generate_ats_cv
                         result = generate_ats_cv(st.session_state.cv_text, target_job=st.session_state.selected_job)
                         if result["available"] and result["ats_text"]:
@@ -838,9 +834,9 @@ elif st.session_state.current_step == 2:
 
                 # Download buttons
                 st.markdown("### 📥 Download CV ATS")
-                col1, col2 = st.columns(2)
+                col_d1, col_d2 = st.columns(2)
 
-                with col1:
+                with col_d1:
                     try:
                         from agents.cv_analyzer_agent import export_cv_to_docx
                         docx_bytes = export_cv_to_docx(clean_ats_text)
@@ -854,7 +850,7 @@ elif st.session_state.current_step == 2:
                     except Exception as e:
                         st.error(f"Error generating DOCX: {e}")
 
-                with col2:
+                with col_d2:
                     try:
                         from agents.cv_analyzer_agent import export_cv_to_pdf
                         pdf_bytes = export_cv_to_pdf(clean_ats_text)
@@ -868,9 +864,17 @@ elif st.session_state.current_step == 2:
                     except Exception as e:
                         st.error(f"Error generating PDF: {e}")
 
-                if st.button("🔄 Generate Ulang"):
+                st.markdown("<div style='margin-top: 10px;'></div>", unsafe_allow_html=True)
+                if st.button("🔄 Generate Ulang CV ATS", type="secondary", use_container_width=True):
                     st.session_state.ats_cv_text = None
                     st.rerun()
+            
+            # Reset feedback button at the very bottom
+            st.markdown("<div style='margin-top: 25px;'></div>", unsafe_allow_html=True)
+            if st.button("🔄 Ulangi Analisis & Feedback CV", type="secondary", use_container_width=True):
+                st.session_state.cv_feedback = None
+                st.session_state.ats_cv_text = None
+                st.rerun()
 
     # Navigation
     st.markdown("---")
