@@ -76,6 +76,15 @@ except Exception:
 if is_auth_configured:
     if not st.user.is_logged_in:
         st.markdown("""
+            <style>
+                /* Force the login button to match the welcome card width exactly */
+                div[data-testid="stButton"] button {
+                    max-width: 550px !important;
+                    width: 100% !important;
+                    margin: 0 auto !important;
+                    display: block !important;
+                }
+            </style>
             <div class="hero-container animate-fade-in" style="max-width: 550px; margin: 20px auto 10px auto; text-align: center; padding: 30px 40px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-glow);">
                 <div style="font-size: 2.5rem; margin-bottom: 15px;">🎯</div>
                 <h1 class="hero-title" style="font-size: 1.8rem; margin-bottom: 10px;">Welcome to JobMatch AI</h1>
@@ -85,21 +94,6 @@ if is_auth_configured:
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown(
-            """
-            <style>
-                /* Target the Streamlit button container adjacent to this markdown wrapper and force its width to match the card */
-                div:has(> .stMarkdown > .login-button-wrap) + div[data-testid="element-container"] div[data-testid="stButton"] button {
-                    max-width: 550px !important;
-                    width: 100% !important;
-                    margin: 0 auto !important;
-                    display: block !important;
-                }
-            </style>
-            <div class="login-button-wrap"></div>
-            """,
-            unsafe_allow_html=True
-        )
         if st.button("🔑 Log in dengan Google", type="primary", use_container_width=True):
             st.login("google")
         st.stop()
