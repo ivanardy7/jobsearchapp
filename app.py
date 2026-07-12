@@ -76,10 +76,10 @@ except Exception:
 if is_auth_configured:
     if not st.user.is_logged_in:
         st.markdown("""
-            <div class="hero-container animate-fade-in" style="max-width: 600px; margin: 80px auto; text-align: center; padding: 40px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-glow);">
-                <div style="font-size: 3rem; margin-bottom: 20px;">🎯</div>
-                <h1 class="hero-title" style="font-size: 2.2rem; margin-bottom: 15px;">Welcome to JobMatch AI</h1>
-                <p class="hero-subtitle" style="font-size: 1rem; margin-bottom: 30px; color: var(--text-secondary);">
+            <div class="hero-container animate-fade-in" style="max-width: 550px; margin: 20px auto 10px auto; text-align: center; padding: 30px 40px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; box-shadow: var(--shadow-glow);">
+                <div style="font-size: 2.5rem; margin-bottom: 15px;">🎯</div>
+                <h1 class="hero-title" style="font-size: 1.8rem; margin-bottom: 10px;">Welcome to JobMatch AI</h1>
+                <p class="hero-subtitle" style="font-size: 0.92rem; margin-bottom: 5px; color: var(--text-secondary);">
                     Silakan masuk menggunakan Google Account Anda untuk mulai menganalisis CV dan mencari kecocokan lowongan kerja.
                 </p>
             </div>
