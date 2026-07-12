@@ -611,3 +611,19 @@ header {
 .job-title {
     color: var(--text-primary) !important;
 }
+
+/* ── Sidebar SVG Branching Tree Styling ── */
+[data-testid="stSidebar"] svg {
+    width: 112% !important;
+    margin-left: -6% !important;
+    margin-top: 10px !important;
+    margin-bottom: 8px !important;
+}
+
+/* ── Sidebar Disabled Buttons Styling (Locked Steps) ── */
+[data-testid="stSidebar"] button:disabled {
+    background-color: #eae7e0 !important;
+    color: #a39b90 !important;
+    border: 1px solid rgba(142, 126, 106, 0.25) !important;
+    opacity: 0.8 !important;
+}
