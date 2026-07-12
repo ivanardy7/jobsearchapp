@@ -597,5 +597,5 @@ header {
 
 /* ── Job Card Titles ── */
 .job-title {
-    color: var(--text-color, #e2e8f0) !important;
+    color: var(--text-primary) !important;
 }
