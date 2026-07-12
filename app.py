@@ -1074,8 +1074,16 @@ elif st.session_state.current_step == 4:
                         from agents.interview_agent import start_interview
                         result = start_interview(st.session_state.cv_text, job)
                         if result["available"] and result["response"]:
+                            response_text = result["response"]
+                            tts_bytes = None
+                            if mode == "🎙️ Voice":
+                                try:
+                                    from agents.interview_agent import text_to_speech
+                                    tts_bytes = text_to_speech(response_text)
+                                except Exception:
+                                    pass
                             st.session_state.interview_history = [
-                                {"role": "assistant", "content": result["response"]}
+                                {"role": "assistant", "content": response_text, "tts_audio": tts_bytes}
                             ]
                             st.session_state.interview_started = True
                             st.rerun()
@@ -1103,15 +1111,10 @@ elif st.session_state.current_step == 4:
                             unsafe_allow_html=True,
                         )
 
-                        # TTS for voice mode
+                        # TTS for voice mode (played directly from cached audio bytes)
                         if mode == "🎙️ Voice" and msg == st.session_state.interview_history[-1]:
-                            try:
-                                from agents.interview_agent import text_to_speech
-                                audio_bytes = text_to_speech(msg["content"])
-                                if audio_bytes:
-                                    st.audio(audio_bytes, format="audio/mp3")
-                            except Exception:
-                                pass
+                            if msg.get("tts_audio"):
+                                st.audio(msg["tts_audio"], format="audio/mp3")
 
                     else:
                         st.markdown(
@@ -1136,8 +1139,16 @@ elif st.session_state.current_step == 4:
                                     answer,
                                 )
                                 if result["available"] and result["response"]:
+                                    response_text = result["response"]
+                                    tts_bytes = None
+                                    if mode == "🎙️ Voice":
+                                        try:
+                                            from agents.interview_agent import text_to_speech
+                                            tts_bytes = text_to_speech(response_text)
+                                        except Exception:
+                                            pass
                                     st.session_state.interview_history.append(
-                                        {"role": "assistant", "content": result["response"]}
+                                        {"role": "assistant", "content": response_text, "tts_audio": tts_bytes}
                                     )
                             st.rerun()
 
@@ -1191,8 +1202,15 @@ elif st.session_state.current_step == 4:
                                                 transcribed,
                                             )
                                             if result["available"] and result["response"]:
+                                                response_text = result["response"]
+                                                tts_bytes = None
+                                                try:
+                                                    from agents.interview_agent import text_to_speech
+                                                    tts_bytes = text_to_speech(response_text)
+                                                except Exception:
+                                                    pass
                                                 st.session_state.interview_history.append(
-                                                    {"role": "assistant", "content": result["response"]}
+                                                    {"role": "assistant", "content": response_text, "tts_audio": tts_bytes}
                                                 )
                                             st.rerun()
                                         else:
