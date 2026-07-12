@@ -1,45 +1,45 @@
 /* ═══════════════════════════════════════════════════════════
-   JobMatch AI — Premium Dark Theme CSS
+   JobMatch AI — Premium Light Professional Theme CSS
    ═══════════════════════════════════════════════════════════ */
 
-/* ── Google Fonts Import ─────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* ── Google Fonts Import (Outfit - Gemini Style) ────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 /* ── CSS Variables ───────────────────────────────────────── */
 :root {
-    --bg-primary: #05161c;
-    --bg-secondary: #0a252c;
-    --bg-card: rgba(10, 37, 44, 0.85);
-    --bg-card-hover: rgba(15, 50, 60, 0.95);
-    --accent-blue: #00CED1;
-    --accent-purple: #00BFFF;
-    --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-rose: #f43f5e;
-    --text-primary: #e2e8f0;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-color: rgba(0, 206, 209, 0.12);
-    --glass-bg: rgba(255, 255, 255, 0.02);
-    --shadow-glow: 0 0 30px rgba(0, 206, 209, 0.15);
-    --gradient-primary: linear-gradient(135deg, #00CED1, #00BFFF);
-    --gradient-success: linear-gradient(135deg, #10b981, #059669);
-    --gradient-warm: linear-gradient(135deg, #f59e0b, #f43f5e);
+    --bg-primary: #FAF9F6;
+    --bg-secondary: #FAF9F6;
+    --bg-card: #ffffff;
+    --bg-card-hover: #ffffff;
+    --accent-blue: #4F8C8C;
+    --accent-purple: #8E7E6A;
+    --accent-emerald: #4F8C8C;
+    --accent-amber: #8E7E6A;
+    --accent-rose: #d97706;
+    --text-primary: #2E2822;
+    --text-secondary: #605850;
+    --text-muted: #8c8277;
+    --border-color: rgba(79, 140, 140, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --shadow-glow: 0 8px 30px rgba(79, 140, 140, 0.08);
+    --gradient-primary: linear-gradient(135deg, #4F8C8C, #8E7E6A);
+    --gradient-success: linear-gradient(135deg, #4F8C8C, #3d6e6e);
+    --gradient-warm: linear-gradient(135deg, #8E7E6A, #a39583);
 }
 
 /* ── Global Styles ───────────────────────────────────────── */
 .stApp {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* Force dark theme background globally and adjust default text colors */
+/* Force light theme background globally and adjust default text colors */
 [data-testid="stAppViewContainer"], .stApp {
-    background-color: #05161c !important;
-    background: linear-gradient(135deg, #05161c 0%, #071f26 50%, #0c2b33 100%) !important;
-    color: #e2e8f0 !important;
+    background-color: #FAF9F6 !important;
+    background: #FAF9F6 !important;
+    color: #2E2822 !important;
 }
 
-/* Force all widget labels and file uploader texts to be readable on dark background */
+/* Force all widget labels and file uploader texts to be readable on light background */
 [data-testid="stWidgetLabel"], 
 [data-testid="stWidgetLabel"] p,
 [data-testid="stFileUploader"] label,
@@ -48,14 +48,15 @@
 [data-testid="stFileUploader"] small,
 div[data-testid="stText"] p,
 .stCaption p {
-    color: #e2e8f0 !important;
+    color: #2E2822 !important;
 }
 
 [data-testid="stFileUploader"] {
-    border: 1px dashed rgba(0, 206, 209, 0.3) !important;
+    border: 1.5px dashed rgba(79, 140, 140, 0.3) !important;
     border-radius: 12px !important;
-    background-color: rgba(10, 37, 44, 0.5) !important;
+    background-color: #ffffff !important;
     padding: 10px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
 }
 
 [data-testid="stHeader"] {
@@ -65,7 +66,7 @@ div[data-testid="stText"] p,
 
 /* ── Sidebar Styling ─────────────────────────────────────── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #030f12 0%, #0a252c 100%) !important;
+    background: #f1efe9 !important;
     border-right: 1px solid var(--border-color) !important;
 }
 
@@ -311,25 +312,25 @@ div[data-testid="stVerticalBlockBorderWrapper"] > div {
 
 /* ── Chat Bubbles ────────────────────────────────────────── */
 .chat-user {
-    background: #1a1a2e !important;
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    background: #E2EFEF !important;
+    border: 1px solid rgba(79, 140, 140, 0.25) !important;
     border-radius: 16px 16px 4px 16px;
     padding: 14px 18px;
     margin: 8px 0;
     margin-left: 40px;
-    color: #e2e8f0 !important;
+    color: #2E2822 !important;
     font-size: 0.92rem;
     line-height: 1.5;
 }
 
 .chat-ai {
-    background: #0d0d24 !important;
-    border: 1px solid rgba(124, 58, 237, 0.3);
+    background: #F0EDE6 !important;
+    border: 1px solid rgba(142, 126, 106, 0.25) !important;
     border-radius: 16px 16px 16px 4px;
     padding: 14px 18px;
     margin: 8px 0;
     margin-right: 40px;
-    color: #e2e8f0 !important;
+    color: #2E2822 !important;
     font-size: 0.92rem;
     line-height: 1.5;
 }
