@@ -898,24 +898,21 @@ elif st.session_state.current_step == 3:
             icon="🔑",
         )
     else:
-        # Display chat history
-        for msg in st.session_state.career_chat_history:
-            if msg["role"] == "user":
-                st.markdown(
-                    f'<div class="chat-user">🧑 {msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    f'<div class="chat-ai">🤖 {msg["content"]}</div>',
-                    unsafe_allow_html=True,
-                )
-
-        # Welcome message if no history
-        if not st.session_state.career_chat_history:
+        # Display chat history inside a scrollable container
+        chat_html = '<div class="chat-scroll-container">'
+        
+        if st.session_state.career_chat_history:
+            for msg in st.session_state.career_chat_history:
+                if msg["role"] == "user":
+                    chat_html += f'<div class="chat-user">🧑 {msg["content"]}</div>'
+                else:
+                    chat_html += f'<div class="chat-ai">🤖 {msg["content"]}</div>'
+        else:
+            # Welcome message if no history
             if st.session_state.selected_job:
                 _sel = st.session_state.selected_job
-                welcome_msg = f"""<div class="chat-ai">
+                welcome_msg = f"""
+                <div class="chat-ai">
                     🤖 Halo! Saya AI Career Consultant kamu. Saya sudah membaca CV kamu.<br><br>
                     Saya lihat kamu tertarik dengan posisi <strong>{_sel.get('job_title', '')}</strong> di <strong>{_sel.get('company_name', '')}</strong>.<br><br>
                     Silakan ceritakan tentang:<br>
@@ -925,7 +922,8 @@ elif st.session_state.current_step == 3:
                     • 💡 Atau apapun tentang karir kamu!
                 </div>"""
             else:
-                welcome_msg = """<div class="chat-ai">
+                welcome_msg = """
+                <div class="chat-ai">
                     🤖 Halo! Saya AI Career Consultant kamu. Saya sudah membaca CV kamu.<br><br>
                     Silakan ceritakan tentang:<br>
                     • 🎯 Cita-cita atau tujuan karir kamu<br>
@@ -933,7 +931,27 @@ elif st.session_state.current_step == 3:
                     • 📈 Skill yang ingin dikembangkan<br>
                     • 💡 Atau apapun tentang karir kamu!
                 </div>"""
-            st.markdown(welcome_msg, unsafe_allow_html=True)
+            chat_html += welcome_msg
+            
+        chat_html += '</div>'
+        st.markdown(chat_html, unsafe_allow_html=True)
+
+        # Automatically scroll chat container to the bottom
+        import streamlit.components.v1 as components
+        components.html(
+            """
+            <script>
+                setTimeout(function() {
+                    var el = window.parent.document.querySelector('.chat-scroll-container');
+                    if (el) {
+                        el.scrollTop = el.scrollHeight;
+                    }
+                }, 100);
+            </script>
+            """,
+            height=0,
+            width=0,
+        )
 
         # Chat input (using text_input inside form for normal document flow)
         with st.form(key="career_chat_form", clear_on_submit=True):
