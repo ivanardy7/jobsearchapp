@@ -85,7 +85,21 @@ if is_auth_configured:
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown('<div class="login-button-wrap"></div>', unsafe_allow_html=True)
+        st.markdown(
+            """
+            <style>
+                /* Target the Streamlit button container adjacent to this markdown wrapper and force its width to match the card */
+                div:has(> .stMarkdown > .login-button-wrap) + div[data-testid="element-container"] div[data-testid="stButton"] button {
+                    max-width: 550px !important;
+                    width: 100% !important;
+                    margin: 0 auto !important;
+                    display: block !important;
+                }
+            </style>
+            <div class="login-button-wrap"></div>
+            """,
+            unsafe_allow_html=True
+        )
         if st.button("🔑 Log in dengan Google", type="primary", use_container_width=True):
             st.login("google")
         st.stop()
