@@ -1135,10 +1135,20 @@ elif st.session_state.current_step == 4:
                 # Input area (only active if interview is not completed)
                 if not is_completed:
                     if mode == "💬 Text":
-                        answer = st.chat_input("Ketik jawaban kamu...")
-                        if answer:
+                        with st.form(key="mock_interview_form", clear_on_submit=True):
+                            col_input, col_btn = st.columns([6, 1])
+                            with col_input:
+                                answer = st.text_input(
+                                    "Jawaban",
+                                    placeholder="Ketik jawaban kamu...",
+                                    label_visibility="collapsed",
+                                )
+                            with col_btn:
+                                submitted = st.form_submit_button("➤", use_container_width=True)
+
+                        if submitted and answer and answer.strip():
                             st.session_state.interview_history.append(
-                                {"role": "user", "content": answer}
+                                {"role": "user", "content": answer.strip()}
                             )
                             with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
                                 from agents.interview_agent import continue_interview
@@ -1146,17 +1156,11 @@ elif st.session_state.current_step == 4:
                                     st.session_state.cv_text,
                                     job,
                                     st.session_state.interview_history[:-1],
-                                    answer,
+                                    answer.strip(),
                                 )
                                 if result["available"] and result["response"]:
                                     response_text = result["response"]
                                     tts_bytes = None
-                                    if mode == "🎙️ Voice":
-                                        try:
-                                            from agents.interview_agent import text_to_speech
-                                            tts_bytes = text_to_speech(response_text)
-                                        except Exception:
-                                            pass
                                     st.session_state.interview_history.append(
                                         {"role": "assistant", "content": response_text, "tts_audio": tts_bytes}
                                     )
