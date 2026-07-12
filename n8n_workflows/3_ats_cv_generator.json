@@ -24,11 +24,11 @@
           "values": [
             {
               "role": "system",
-              "content": "Kamu adalah CV Writer Expert. Berdasarkan CV asli user berikut, buat versi CV yang ATS-friendly.\n\nRules:\n1. Gunakan format yang clean dan terstruktur\n2. Gunakan bullet points\n3. Highlight skills dan achievements\n4. Gunakan keywords yang relevan untuk ATS systems\n5. Format sections: PROFIL, PENGALAMAN KERJA, PENDIDIKAN, SKILLS, SERTIFIKASI (jika ada)\n6. Tulis dalam bahasa yang sama dengan CV asli (Indonesia/Inggris)\n\nOutput HANYA isi CV yang sudah diperbaiki, tanpa penjelasan tambahan.\nGunakan format plain text dengan heading yang jelas."
+              "content": "You are a CV Writer Expert. Based on the user's original CV, write an ATS-friendly version of the CV.\n\nRules:\n1. WRITE THE ENTIRE CV IN ENGLISH (convert Indonesian sections/words to standard English recruitment terms).\n2. Use a clean, structured layout in markdown.\n3. Highlight transferable skills and achievements relevant to the target job if provided.\n4. Use relevant keywords for ATS optimization.\n5. Output ONLY the optimized CV content. Do NOT add any introduction, explanations, or target job sections.\n6. IMPORTANT: Do NOT include any \"Target Job\", \"Target Salary\", or target company information in the output CV. The target job context provided is ONLY for you to tailor the tone, profile summary, and highlight relevant transferable skills (e.g. communication, project management, leadership, sales) in the user's CV."
             },
             {
               "role": "user",
-              "content": "=CV Asli:\n\n{{ $json.body.cv_text }}\n\n--- TARGET PEKERJAAN ---\n{{ $json.body.target_job ? \"Saya menargetkan posisi spesifik:\\nJudul Posisi: \" + $json.body.target_job.job_title + \"\\nPerusahaan: \" + $json.body.target_job.company_name + \"\\nDeskripsi Pekerjaan: \" + $json.body.target_job.job_description : \"Tidak ada target posisi spesifik (optimalkan secara umum saja).\" }}"
+              "content": "=Original CV:\n\n{{ $json.body.cv_text }}\n\n--- TARGET JOB CONTEXT (FOR TAILORING KEYWORDS & SUMMARY ONLY - DO NOT COPY OR INCLUDE THIS SECTION IN THE OUTPUT CV) ---\n{{ $json.body.target_job ? \"Target Position: \" + $json.body.target_job.job_title + \"\\nTarget Company: \" + $json.body.target_job.company_name + \"\\nJob Description: \" + $json.body.target_job.job_description : \"No target job specified (optimize generally).\" }}"
             }
           ]
         },
