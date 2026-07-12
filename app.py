@@ -478,16 +478,24 @@ if st.session_state.current_step == 0:
         pages = info.get("pages", info.get("paragraphs", "—"))
         label = "Halaman" if "pages" in info else "Paragraf"
         
-        # Compact inline preview with stats + next button on same visual block
-        st.markdown(
-            f"""<div style="display:flex; align-items:center; gap:12px; margin-top:8px; padding:10px 14px; background:#ffffff; border:1px solid var(--border-color); border-radius:12px; flex-wrap:wrap;">
-                <span style="font-weight:700; font-size:0.85rem; color:var(--text-primary);">📋 Preview:</span>
-                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('format', 'N/A')}</span>
-                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('size_mb', 0)} MB</span>
-                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{pages} {label}</span>
-            </div>""",
-            unsafe_allow_html=True,
-        )
+        # Preview badges + Next button on the same row
+        col_preview, col_next = st.columns([3, 1])
+        with col_preview:
+            st.markdown(
+                f"""<div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:#ffffff; border:1px solid var(--border-color); border-radius:12px; flex-wrap:wrap; margin-top:8px;">
+                    <span style="font-weight:700; font-size:0.85rem; color:var(--text-primary);">📋 Preview:</span>
+                    <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('format', 'N/A')}</span>
+                    <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('size_mb', 0)} MB</span>
+                    <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{pages} {label}</span>
+                </div>""",
+                unsafe_allow_html=True,
+            )
+        with col_next:
+            st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+            if st.button("Lihat Rekomendasi Kerja →", type="primary", use_container_width=True):
+                st.session_state.cv_needs_reanalysis = False
+                next_step()
+                st.rerun()
 
         with st.expander("📄 Lihat Isi CV (Text)", expanded=False):
             st.text_area(
@@ -497,14 +505,6 @@ if st.session_state.current_step == 0:
                 disabled=True,
                 label_visibility="collapsed",
             )
-
-        # Next button (no extra spacing)
-        col_l, col_r = st.columns([3, 1])
-        with col_r:
-            if st.button("Lihat Rekomendasi Kerja →", type="primary", use_container_width=True):
-                st.session_state.cv_needs_reanalysis = False
-                next_step()
-                st.rerun()
 
 
 # ═══════════════════════════════════════════════════════════
