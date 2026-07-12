@@ -1070,11 +1070,15 @@ elif st.session_state.current_step == 4:
                 unsafe_allow_html=True,
             )
 
-            # Mode selection
+            # Mode selection (locked after the user submits their first answer)
+            user_turns_count = sum(1 for m in st.session_state.get("interview_history", []) if m.get("role") == "user")
+            is_mode_locked = user_turns_count > 0
+
             mode = st.radio(
                 "Mode Interview:",
                 ["💬 Text", "🎙️ Voice"],
                 horizontal=True,
+                disabled=is_mode_locked,
             )
 
             # Start interview if not started
