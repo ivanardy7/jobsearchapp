@@ -1080,6 +1080,21 @@ elif st.session_state.current_step == 4:
                             st.session_state.interview_started = True
                             st.rerun()
             else:
+                user_turns = sum(1 for m in st.session_state.interview_history if m["role"] == "user")
+                max_questions = 5
+                is_completed = user_turns >= max_questions
+
+                # Render interview progress indicator
+                if is_completed:
+                    st.success("🎉 Mock Interview Selesai! HR sedang memberikan evaluasi dan feedback skor lengkap di bawah.")
+                else:
+                    st.markdown(
+                        f"""<div style="background:rgba(79, 140, 140, 0.08); padding:10px 16px; border-radius:10px; margin-bottom:15px; border:1px solid rgba(79,140,140,0.15);">
+                            <span style="font-weight:700; color:var(--accent-blue);">📋 Kemajuan Interview:</span> Pertanyaan {user_turns + 1} dari {max_questions}
+                        </div>""",
+                        unsafe_allow_html=True
+                    )
+
                 # Display interview conversation
                 for msg in st.session_state.interview_history:
                     if msg["role"] == "assistant":
@@ -1104,87 +1119,90 @@ elif st.session_state.current_step == 4:
                             unsafe_allow_html=True,
                         )
 
-                # Input area
-                if mode == "💬 Text":
-                    answer = st.chat_input("Ketik jawaban kamu...")
-                    if answer:
-                        st.session_state.interview_history.append(
-                            {"role": "user", "content": answer}
-                        )
-                        with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
-                            from agents.interview_agent import continue_interview
-                            result = continue_interview(
-                                st.session_state.cv_text,
-                                job,
-                                st.session_state.interview_history[:-1],
-                                answer,
+                # Input area (only active if interview is not completed)
+                if not is_completed:
+                    if mode == "💬 Text":
+                        answer = st.chat_input("Ketik jawaban kamu...")
+                        if answer:
+                            st.session_state.interview_history.append(
+                                {"role": "user", "content": answer}
                             )
-                            if result["available"] and result["response"]:
-                                st.session_state.interview_history.append(
-                                    {"role": "assistant", "content": result["response"]}
+                            with st.spinner("🤵 HR sedang mengevaluasi jawaban..."):
+                                from agents.interview_agent import continue_interview
+                                result = continue_interview(
+                                    st.session_state.cv_text,
+                                    job,
+                                    st.session_state.interview_history[:-1],
+                                    answer,
                                 )
-                        st.rerun()
-
-                else:  # Voice mode
-                    st.markdown("### 🎙️ Rekam Jawaban")
-                    try:
-                        from audio_recorder_streamlit import audio_recorder
-                        
-                        col_mic, col_guide = st.columns([1, 5])
-                        with col_mic:
-                            audio_bytes = audio_recorder(
-                                text="",
-                                recording_color="#d97706",  # Bronze accent
-                                neutral_color="#4F8C8C",    # Muted Teal accent
-                                icon_size="2x",
-                                pause_threshold=60.0,       # Prevent automatic cutoff during silence
-                            )
-                        with col_guide:
-                            st.markdown(
-                                """<div style="padding-top: 6px; font-weight: 500; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
-                                    🔴 Klik 1x untuk <strong>START</strong> (ikon berkedip)<br>
-                                    ⏹️ Klik 1x lagi untuk <strong>STOP</strong> (jawaban langsung terkirim)
-                                </div>""",
-                                unsafe_allow_html=True
-                            )
-
-                        if audio_bytes:
-                            # Use md5 hash to prevent infinite rerun loop
-                            import hashlib
-                            audio_hash = hashlib.md5(audio_bytes).hexdigest()
-                            
-                            if audio_hash != st.session_state.get("_last_processed_audio", ""):
-                                st.session_state._last_processed_audio = audio_hash
-                                
-                                with st.spinner("🎧 Sedang menerjemahkan suara Anda dan mengirim jawaban..."):
-                                    from agents.interview_agent import (
-                                        transcribe_audio,
-                                        continue_interview,
+                                if result["available"] and result["response"]:
+                                    st.session_state.interview_history.append(
+                                        {"role": "assistant", "content": Annapolis_response := result["response"]}
                                     )
-                                    transcribed = transcribe_audio(audio_bytes)
-                                    
-                                    if transcribed and transcribed.strip():
-                                        st.session_state.interview_history.append(
-                                            {"role": "user", "content": transcribed}
-                                        )
+                            st.rerun()
 
-                                        result = continue_interview(
-                                            st.session_state.cv_text,
-                                            job,
-                                            st.session_state.interview_history[:-1],
-                                            transcribed,
+                    else:  # Voice mode
+                        st.markdown("### 🎙️ Rekam Jawaban")
+                        try:
+                            from audio_recorder_streamlit import audio_recorder
+                            
+                            col_mic, col_guide = st.columns([1, 5])
+                            with col_mic:
+                                audio_bytes = audio_recorder(
+                                    text="",
+                                    recording_color="#d97706",  # Bronze accent
+                                    neutral_color="#4F8C8C",    # Muted Teal accent
+                                    icon_size="2x",
+                                    pause_threshold=60.0,       # Prevent automatic cutoff during silence
+                                )
+                            with col_guide:
+                                st.markdown(
+                                    """<div style="padding-top: 6px; font-weight: 500; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+                                        🔴 Klik 1x untuk <strong>START</strong> (ikon berkedip)<br>
+                                        ⏹️ Klik 1x lagi untuk <strong>STOP</strong> (jawaban langsung terkirim)
+                                    </div>""",
+                                    unsafe_allow_html=True
+                                )
+
+                            if audio_bytes:
+                                # Use md5 hash to prevent infinite rerun loop
+                                import hashlib
+                                audio_hash = hashlib.md5(audio_bytes).hexdigest()
+                                
+                                if audio_hash != st.session_state.get("_last_processed_audio", ""):
+                                    st.session_state._last_processed_audio = audio_hash
+                                    
+                                    with st.spinner("🎧 Sedang menerjemahkan suara Anda dan mengirim jawaban..."):
+                                        from agents.interview_agent import (
+                                            transcribe_audio,
+                                            continue_interview,
                                         )
-                                        if result["available"] and result["response"]:
+                                        transcribed = transcribe_audio(audio_bytes)
+                                        
+                                        if transcribed and transcribed.strip():
                                             st.session_state.interview_history.append(
-                                                {"role": "assistant", "content": result["response"]}
+                                                {"role": "user", "content": transcribed}
                                             )
-                                        st.rerun()
-                                    else:
-                                        st.error("❌ Suara tidak terdeteksi. Silakan coba lagi.")
-                    except ImportError:
-                        st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
-                        st.code("pip install audio-recorder-streamlit")
-                        st.info("Gunakan mode Text untuk sementara.")
+
+                                            result = continue_interview(
+                                                st.session_state.cv_text,
+                                                job,
+                                                st.session_state.interview_history[:-1],
+                                                transcribed,
+                                            )
+                                            if result["available"] and result["response"]:
+                                                st.session_state.interview_history.append(
+                                                    {"role": "assistant", "content": result["response"]}
+                                                )
+                                            st.rerun()
+                                        else:
+                                            st.error("❌ Suara tidak terdeteksi. Silakan coba lagi.")
+                        except ImportError:
+                            st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
+                            st.code("pip install audio-recorder-streamlit")
+                            st.info("Gunakan mode Text untuk sementara.")
+                else:
+                    st.info("💡 Sesi latihan interview selesai. Klik 'Reset Interview' di bawah untuk mengulangi latihan.")
 
             # Reset interview (Full width button, Ganti Posisi removed)
             st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)

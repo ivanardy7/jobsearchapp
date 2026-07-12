@@ -43,29 +43,8 @@ Format jawaban:
 
 def start_interview(cv_text: str, job_info: dict) -> dict:
     """
-    Start a mock interview session.
-
-    Args:
-        cv_text: User's CV content
-        job_info: dict with job_title, company_name, job_description
-
-    Returns dict with:
-    - "response": AI's first question
-    - "available": whether AI service is configured
+    Start a mock interview session. Always uses direct OpenAI for full multi-turn chat history.
     """
-    # Try N8N first
-    if config.is_n8n_configured():
-        try:
-            from n8n_client import start_interview_n8n
-            ai_text = start_interview_n8n(cv_text, job_info)
-            if ai_text and not ai_text.startswith("N8N error") and not ai_text.startswith("Tidak dapat"):
-                return {"response": ai_text, "available": True}
-            else:
-                return {"response": f"Error: {ai_text}", "available": True}
-        except Exception as e:
-            return {"response": f"Error N8N: {str(e)}", "available": True}
-
-    # Fallback to local OpenAI
     if not config.is_openai_configured():
         return {"response": None, "available": False}
 
@@ -114,31 +93,8 @@ def continue_interview(
     user_answer: str,
 ) -> dict:
     """
-    Continue the mock interview with user's answer.
-
-    Args:
-        cv_text: User's CV content
-        job_info: Job information dict
-        interview_history: Previous Q&A messages
-        user_answer: User's answer to the current question
-
-    Returns dict with:
-    - "response": AI's feedback + next question (or summary if interview is done)
-    - "available": whether AI service is configured
+    Continue the mock interview with user's answer. Always uses direct OpenAI to preserve chat history context.
     """
-    # Try N8N first
-    if config.is_n8n_configured():
-        try:
-            from n8n_client import continue_interview_n8n
-            ai_text = continue_interview_n8n(cv_text, job_info, interview_history, user_answer)
-            if ai_text and not ai_text.startswith("N8N error") and not ai_text.startswith("Tidak dapat"):
-                return {"response": ai_text, "available": True}
-            else:
-                return {"response": f"Error: {ai_text}", "available": True}
-        except Exception as e:
-            return {"response": f"Error N8N: {str(e)}", "available": True}
-
-    # Fallback to local OpenAI
     if not config.is_openai_configured():
         return {"response": None, "available": False}
 
@@ -169,12 +125,12 @@ def continue_interview(
         # Add current answer
         messages.append({"role": "user", "content": user_answer})
 
-        # Check if we should end the interview (after 6+ exchanges)
+        # Check if we should end the interview (exactly 5 questions)
         user_count = sum(1 for m in interview_history if m["role"] == "user")
-        if user_count >= 5:
+        if user_count >= 4:  # Candidate is answering the 5th question
             messages.append({
                 "role": "system",
-                "content": "Interview sudah cukup panjang. Berikan feedback terakhir dan RINGKASAN INTERVIEW dengan skor keseluruhan.",
+                "content": "Kandidat telah menjawab 5 pertanyaan. JANGAN memberikan pertanyaan baru lagi. Akhiri interview sekarang juga dan berikan evaluasi lengkap serta RINGKASAN INTERVIEW sesuai format.",
             })
 
         response = client.chat.completions.create(
