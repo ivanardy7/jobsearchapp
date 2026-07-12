@@ -7,7 +7,6 @@ A. Input CV → B. Lowongan Kerja → C. Review CV → D. Konsultasi Karir → E
 """
 
 import streamlit as st
-import re
 from pathlib import Path
 
 import config
