@@ -118,9 +118,12 @@ def continue_interview(
             },
         ]
 
-        # Add interview history
+        # Add interview history (sanitize to keep only role and content for OpenAI API compatibility)
         for msg in interview_history:
-            messages.append(msg)
+            messages.append({
+                "role": msg["role"],
+                "content": msg["content"]
+            })
 
         # Add current answer
         messages.append({"role": "user", "content": user_answer})
