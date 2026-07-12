@@ -1149,31 +1149,38 @@ elif st.session_state.current_step == 4:
                             )
 
                         if audio_bytes:
-                            with st.spinner("🎧 Sedang menerjemahkan suara Anda dan mengirim jawaban..."):
-                                from agents.interview_agent import (
-                                    transcribe_audio,
-                                    continue_interview,
-                                )
-                                transcribed = transcribe_audio(audio_bytes)
+                            # Use md5 hash to prevent infinite rerun loop
+                            import hashlib
+                            audio_hash = hashlib.md5(audio_bytes).hexdigest()
+                            
+                            if audio_hash != st.session_state.get("_last_processed_audio", ""):
+                                st.session_state._last_processed_audio = audio_hash
                                 
-                                if transcribed and transcribed.strip():
-                                    st.session_state.interview_history.append(
-                                        {"role": "user", "content": transcribed}
+                                with st.spinner("🎧 Sedang menerjemahkan suara Anda dan mengirim jawaban..."):
+                                    from agents.interview_agent import (
+                                        transcribe_audio,
+                                        continue_interview,
                                     )
-
-                                    result = continue_interview(
-                                        st.session_state.cv_text,
-                                        job,
-                                        st.session_state.interview_history[:-1],
-                                        transcribed,
-                                    )
-                                    if result["available"] and result["response"]:
+                                    transcribed = transcribe_audio(audio_bytes)
+                                    
+                                    if transcribed and transcribed.strip():
                                         st.session_state.interview_history.append(
-                                            {"role": "assistant", "content": result["response"]}
+                                            {"role": "user", "content": transcribed}
                                         )
-                                    st.rerun()
-                                else:
-                                    st.error("❌ Suara tidak terdeteksi. Silakan coba lagi.")
+
+                                        result = continue_interview(
+                                            st.session_state.cv_text,
+                                            job,
+                                            st.session_state.interview_history[:-1],
+                                            transcribed,
+                                        )
+                                        if result["available"] and result["response"]:
+                                            st.session_state.interview_history.append(
+                                                {"role": "assistant", "content": result["response"]}
+                                            )
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ Suara tidak terdeteksi. Silakan coba lagi.")
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
                         st.code("pip install audio-recorder-streamlit")
