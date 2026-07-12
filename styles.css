@@ -665,8 +665,6 @@ div[data-testid="stForm"] button[kind="formSubmit"] {
 
 /* ── Scrollable Chat History Container ── */
 .chat-scroll-container {
-    max-height: 380px;
-    overflow-y: auto;
     padding: 10px;
     margin-bottom: 15px;
     display: flex;

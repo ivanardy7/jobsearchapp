@@ -936,28 +936,6 @@ elif st.session_state.current_step == 3:
         chat_html += '</div>'
         st.markdown(chat_html, unsafe_allow_html=True)
 
-        # Automatically scroll chat container to the bottom
-        import streamlit.components.v1 as components
-        components.html(
-            """
-            <script>
-                function scrollToBottom() {
-                    var el = window.parent.document.querySelector('.chat-scroll-container');
-                    if (el) {
-                        el.scrollTop = el.scrollHeight;
-                    }
-                }
-                scrollToBottom();
-                setTimeout(scrollToBottom, 50);
-                setTimeout(scrollToBottom, 150);
-                setTimeout(scrollToBottom, 300);
-                setTimeout(scrollToBottom, 600);
-            </script>
-            """,
-            height=0,
-            width=0,
-        )
-
         # Chat input (using text_input inside form for normal document flow)
         with st.form(key="career_chat_form", clear_on_submit=True):
             col_input, col_btn = st.columns([6, 1])
