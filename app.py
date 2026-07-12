@@ -364,7 +364,7 @@ with st.sidebar:
     
     if user_name:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-bottom: 0px; border-bottom: none;">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-top: 16px; margin-bottom: 0px; border-bottom: none;">
                 <div style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary);">
                     👤 {user_name}
                 </div>
@@ -376,7 +376,7 @@ with st.sidebar:
             
     elif st.session_state.bypass_login:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-bottom: 0px; border-bottom: none;">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-top: 16px; margin-bottom: 0px; border-bottom: none;">
                 <div style="font-weight: 700; font-size: 0.82rem; color: #d97706;">
                     🛠️ Developer Mode
                 </div>
