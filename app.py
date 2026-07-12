@@ -941,12 +941,17 @@ elif st.session_state.current_step == 3:
         components.html(
             """
             <script>
-                setTimeout(function() {
+                function scrollToBottom() {
                     var el = window.parent.document.querySelector('.chat-scroll-container');
                     if (el) {
                         el.scrollTop = el.scrollHeight;
                     }
-                }, 100);
+                }
+                scrollToBottom();
+                setTimeout(scrollToBottom, 50);
+                setTimeout(scrollToBottom, 150);
+                setTimeout(scrollToBottom, 300);
+                setTimeout(scrollToBottom, 600);
             </script>
             """,
             height=0,
