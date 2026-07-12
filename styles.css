@@ -405,14 +405,20 @@ div[data-testid="column"] button[kind="primary"] {
     background: var(--gradient-primary) !important;
     background-image: var(--gradient-primary) !important;
     color: white !important;
+    border: none !important;
+    outline: none !important;
     box-shadow: 0 4px 15px rgba(79, 140, 140, 0.2) !important;
 }
 
 button[data-testid="stBaseButton-primary"]:hover,
 .stButton>button[kind="primary"]:hover,
-div[data-testid="column"] button[kind="primary"]:hover {
+div[data-testid="column"] button[kind="primary"]:hover,
+button[data-testid="stBaseButton-primary"]:focus,
+button[data-testid="stBaseButton-primary"]:active {
     box-shadow: 0 6px 25px rgba(79, 140, 140, 0.3) !important;
     transform: translateY(-1px) !important;
+    border: none !important;
+    outline: none !important;
 }
 
 /* ── Progress Bar ────────────────────────────────────────── */
