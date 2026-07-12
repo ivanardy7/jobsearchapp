@@ -1129,30 +1129,34 @@ elif st.session_state.current_step == 4:
                     st.markdown("### 🎙️ Rekam Jawaban")
                     try:
                         from audio_recorder_streamlit import audio_recorder
-                        st.markdown(
-                            """<div style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:10px; font-weight:500;">
-                                💡 Klik ikon mikrofon di bawah untuk <strong>Mulai Merekam</strong>. Klik ikon tersebut sekali lagi untuk <strong>Berhenti (Stop)</strong> setelah selesai berbicara.
-                            </div>""",
-                            unsafe_allow_html=True
-                        )
-                        audio_bytes = audio_recorder(
-                            text="",
-                            recording_color="#d97706",  # Bronze accent
-                            neutral_color="#4F8C8C",    # Muted Teal accent
-                            icon_size="2x",
-                            pause_threshold=60.0,       # Prevent automatic cutoff during silence
-                        )
-                        if audio_bytes:
-                            st.audio(audio_bytes, format="audio/wav")
-                            if st.button("📤 Kirim Jawaban", type="primary"):
-                                with st.spinner("🎧 Transcribing audio..."):
-                                    from agents.interview_agent import (
-                                        transcribe_audio,
-                                        continue_interview,
-                                    )
-                                    transcribed = transcribe_audio(audio_bytes)
-                                    st.info(f"📝 Transcribed: {transcribed}")
+                        
+                        col_mic, col_guide = st.columns([1, 5])
+                        with col_mic:
+                            audio_bytes = audio_recorder(
+                                text="",
+                                recording_color="#d97706",  # Bronze accent
+                                neutral_color="#4F8C8C",    # Muted Teal accent
+                                icon_size="2x",
+                                pause_threshold=60.0,       # Prevent automatic cutoff during silence
+                            )
+                        with col_guide:
+                            st.markdown(
+                                """<div style="padding-top: 6px; font-weight: 500; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
+                                    🔴 Klik 1x untuk <strong>START</strong> (ikon berkedip)<br>
+                                    ⏹️ Klik 1x lagi untuk <strong>STOP</strong> (jawaban langsung terkirim)
+                                </div>""",
+                                unsafe_allow_html=True
+                            )
 
+                        if audio_bytes:
+                            with st.spinner("🎧 Sedang menerjemahkan suara Anda dan mengirim jawaban..."):
+                                from agents.interview_agent import (
+                                    transcribe_audio,
+                                    continue_interview,
+                                )
+                                transcribed = transcribe_audio(audio_bytes)
+                                
+                                if transcribed and transcribed.strip():
                                     st.session_state.interview_history.append(
                                         {"role": "user", "content": transcribed}
                                     )
@@ -1168,6 +1172,8 @@ elif st.session_state.current_step == 4:
                                             {"role": "assistant", "content": result["response"]}
                                         )
                                     st.rerun()
+                                else:
+                                    st.error("❌ Suara tidak terdeteksi. Silakan coba lagi.")
                     except ImportError:
                         st.warning("📦 Package `audio-recorder-streamlit` belum terinstall.")
                         st.code("pip install audio-recorder-streamlit")
