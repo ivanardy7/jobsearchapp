@@ -56,6 +56,7 @@ defaults = {
     "interview_started": False,
     "bypass_login": False,
     "internet_jobs": [],
+    "cv_needs_reanalysis": False,
 }
 
 for key, value in defaults.items():
@@ -240,7 +241,7 @@ with st.sidebar:
         elif idx == 4:
             is_completed = st.session_state.interview_started
             
-        is_locked = (idx > 0 and not st.session_state.cv_uploaded) or (
+        is_locked = (idx > 0 and (not st.session_state.cv_uploaded or st.session_state.cv_needs_reanalysis)) or (
             idx >= 2 and not st.session_state.selected_job
         )
         
@@ -440,6 +441,7 @@ if st.session_state.current_step == 0:
                             st.session_state.interview_job = None
                             st.session_state.interview_started = False
                             st.session_state.internet_jobs = []
+                            st.session_state.cv_needs_reanalysis = True
                             st.toast("🔄 CV baru terdeteksi! Data lowongan & analisis sebelumnya telah di-reset.", icon="🔄")
 
                         st.success("✅ CV berhasil di-upload dan dibaca!")
@@ -508,6 +510,7 @@ if st.session_state.current_step == 0:
         col_l, col_r = st.columns([3, 1])
         with col_r:
             if st.button("Lihat Rekomendasi Kerja →", type="primary", use_container_width=True):
+                st.session_state.cv_needs_reanalysis = False
                 next_step()
                 st.rerun()
 
