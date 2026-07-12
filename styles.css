@@ -32,11 +32,30 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-/* Force dark theme background globally */
+/* Force dark theme background globally and adjust default text colors */
 [data-testid="stAppViewContainer"], .stApp {
     background-color: #05161c !important;
     background: linear-gradient(135deg, #05161c 0%, #071f26 50%, #0c2b33 100%) !important;
     color: #e2e8f0 !important;
+}
+
+/* Force all widget labels and file uploader texts to be readable on dark background */
+[data-testid="stWidgetLabel"], 
+[data-testid="stWidgetLabel"] p,
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] p,
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] small,
+div[data-testid="stText"] p,
+.stCaption p {
+    color: #e2e8f0 !important;
+}
+
+[data-testid="stFileUploader"] {
+    border: 1px dashed rgba(0, 206, 209, 0.3) !important;
+    border-radius: 12px !important;
+    background-color: rgba(10, 37, 44, 0.5) !important;
+    padding: 10px !important;
 }
 
 [data-testid="stHeader"] {
