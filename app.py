@@ -1129,11 +1129,18 @@ elif st.session_state.current_step == 4:
                     st.markdown("### 🎙️ Rekam Jawaban")
                     try:
                         from audio_recorder_streamlit import audio_recorder
+                        st.markdown(
+                            """<div style="font-size:0.88rem; color:var(--text-secondary); margin-bottom:10px; font-weight:500;">
+                                💡 Klik ikon mikrofon di bawah untuk <strong>Mulai Merekam</strong>. Klik ikon tersebut sekali lagi untuk <strong>Berhenti (Stop)</strong> setelah selesai berbicara.
+                            </div>""",
+                            unsafe_allow_html=True
+                        )
                         audio_bytes = audio_recorder(
-                            text="Klik untuk mulai merekam",
-                            recording_color="#f43f5e",
-                            neutral_color="#00d4ff",
+                            text="",
+                            recording_color="#d97706",  # Bronze accent
+                            neutral_color="#4F8C8C",    # Muted Teal accent
                             icon_size="2x",
+                            pause_threshold=60.0,       # Prevent automatic cutoff during silence
                         )
                         if audio_bytes:
                             st.audio(audio_bytes, format="audio/wav")
