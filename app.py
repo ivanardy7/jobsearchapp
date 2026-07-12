@@ -406,48 +406,58 @@ if st.session_state.current_step == 0:
         if uploaded_file is not None:
             file_bytes = uploaded_file.getvalue()
 
-            # Validate
-            is_valid, error_msg = validate_cv_file(file_bytes, uploaded_file.name)
+            # Use file hash to detect if this is a truly new/different file
+            import hashlib
+            file_hash = hashlib.md5(file_bytes).hexdigest()
 
-            if not is_valid:
-                st.error(f"❌ {error_msg}")
+            # Only process if this file hasn't been processed yet
+            if file_hash != st.session_state.get("_cv_file_hash", ""):
+                # Validate
+                is_valid, error_msg = validate_cv_file(file_bytes, uploaded_file.name)
+
+                if not is_valid:
+                    st.error(f"❌ {error_msg}")
+                else:
+                    # Extract text
+                    with st.spinner("📖 Membaca CV kamu..."):
+                        try:
+                            cv_text = extract_cv_text(file_bytes, uploaded_file.name)
+                            file_info = get_file_info(file_bytes, uploaded_file.name)
+
+                            # Detect if replacing an existing CV (not first upload)
+                            is_replacing_cv = st.session_state.cv_uploaded
+
+                            # Save to session state
+                            st.session_state.cv_uploaded = True
+                            st.session_state.cv_text = cv_text
+                            st.session_state.cv_filename = uploaded_file.name
+                            st.session_state.cv_file_info = file_info
+                            st.session_state.cv_bytes = file_bytes
+                            st.session_state._cv_file_hash = file_hash
+
+                            # If replacing an existing CV, reset all downstream results
+                            if is_replacing_cv:
+                                st.session_state.job_matches = []
+                                st.session_state.ai_summary = None
+                                st.session_state.selected_job = None
+                                st.session_state.cv_feedback = None
+                                st.session_state.ats_cv_text = None
+                                st.session_state.career_chat_history = []
+                                st.session_state.interview_history = []
+                                st.session_state.interview_job = None
+                                st.session_state.interview_started = False
+                                st.session_state.internet_jobs = []
+                                st.session_state.cv_needs_reanalysis = True
+                                st.toast("🔄 CV baru terdeteksi! Data lowongan & analisis sebelumnya telah di-reset.", icon="🔄")
+
+                            st.success("✅ CV berhasil di-upload dan dibaca!")
+
+                        except Exception as e:
+                            st.error(f"❌ Gagal membaca CV: {str(e)}")
             else:
-                # Extract text
-                with st.spinner("📖 Membaca CV kamu..."):
-                    try:
-                        cv_text = extract_cv_text(file_bytes, uploaded_file.name)
-                        file_info = get_file_info(file_bytes, uploaded_file.name)
-
-                        # Check if this is a DIFFERENT CV than the previous one
-                        old_cv_text = st.session_state.get("cv_text", "")
-                        is_new_cv = (cv_text != old_cv_text) and old_cv_text != ""
-
-                        # Save to session state
-                        st.session_state.cv_uploaded = True
-                        st.session_state.cv_text = cv_text
-                        st.session_state.cv_filename = uploaded_file.name
-                        st.session_state.cv_file_info = file_info
-                        st.session_state.cv_bytes = file_bytes
-
-                        # If user uploaded a DIFFERENT CV, reset all downstream results
-                        if is_new_cv:
-                            st.session_state.job_matches = []
-                            st.session_state.ai_summary = None
-                            st.session_state.selected_job = None
-                            st.session_state.cv_feedback = None
-                            st.session_state.ats_cv_text = None
-                            st.session_state.career_chat_history = []
-                            st.session_state.interview_history = []
-                            st.session_state.interview_job = None
-                            st.session_state.interview_started = False
-                            st.session_state.internet_jobs = []
-                            st.session_state.cv_needs_reanalysis = True
-                            st.toast("🔄 CV baru terdeteksi! Data lowongan & analisis sebelumnya telah di-reset.", icon="🔄")
-
-                        st.success("✅ CV berhasil di-upload dan dibaca!")
-
-                    except Exception as e:
-                        st.error(f"❌ Gagal membaca CV: {str(e)}")
+                # File already processed, just show confirmation
+                if st.session_state.cv_uploaded:
+                    st.success("✅ CV berhasil di-upload dan dibaca!")
 
     with col2:
         st.markdown(
