@@ -472,39 +472,22 @@ if st.session_state.current_step == 0:
             unsafe_allow_html=True,
         )
 
-    # Show CV preview if uploaded
+    # Show CV preview if uploaded (compact inline layout)
     if st.session_state.cv_uploaded:
-        st.markdown("---")
-        st.markdown("### 📋 Preview CV")
-
         info = st.session_state.cv_file_info
-        col_a, col_b, col_c = st.columns(3)
-        with col_a:
-            st.markdown(
-                f"""<div class="stat-card">
-                    <div class="stat-number">{info.get('format', 'N/A')}</div>
-                    <div class="stat-label">Format</div>
-                </div>""",
-                unsafe_allow_html=True,
-            )
-        with col_b:
-            st.markdown(
-                f"""<div class="stat-card">
-                    <div class="stat-number">{info.get('size_mb', 0)}</div>
-                    <div class="stat-label">MB</div>
-                </div>""",
-                unsafe_allow_html=True,
-            )
-        with col_c:
-            pages = info.get("pages", info.get("paragraphs", "—"))
-            label = "Halaman" if "pages" in info else "Paragraf"
-            st.markdown(
-                f"""<div class="stat-card">
-                    <div class="stat-number">{pages}</div>
-                    <div class="stat-label">{label}</div>
-                </div>""",
-                unsafe_allow_html=True,
-            )
+        pages = info.get("pages", info.get("paragraphs", "—"))
+        label = "Halaman" if "pages" in info else "Paragraf"
+        
+        # Compact inline preview with stats + next button on same visual block
+        st.markdown(
+            f"""<div style="display:flex; align-items:center; gap:12px; margin-top:8px; padding:10px 14px; background:#ffffff; border:1px solid var(--border-color); border-radius:12px; flex-wrap:wrap;">
+                <span style="font-weight:700; font-size:0.85rem; color:var(--text-primary);">📋 Preview:</span>
+                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('format', 'N/A')}</span>
+                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{info.get('size_mb', 0)} MB</span>
+                <span style="background:rgba(79,140,140,0.08); padding:4px 10px; border-radius:8px; font-size:0.8rem; font-weight:600; color:var(--accent-blue);">{pages} {label}</span>
+            </div>""",
+            unsafe_allow_html=True,
+        )
 
         with st.expander("📄 Lihat Isi CV (Text)", expanded=False):
             st.text_area(
@@ -515,8 +498,7 @@ if st.session_state.current_step == 0:
                 label_visibility="collapsed",
             )
 
-        # Next button
-        st.markdown("<br>", unsafe_allow_html=True)
+        # Next button (no extra spacing)
         col_l, col_r = st.columns([3, 1])
         with col_r:
             if st.button("Lihat Rekomendasi Kerja →", type="primary", use_container_width=True):
