@@ -241,9 +241,13 @@ with st.sidebar:
         elif idx == 4:
             is_completed = st.session_state.interview_started
             
-        is_locked = (idx > 0 and (not st.session_state.cv_uploaded or st.session_state.cv_needs_reanalysis)) or (
-            idx >= 2 and not st.session_state.selected_job
-        )
+        # Only lock steps that are AHEAD of the current step (never lock previous steps)
+        if idx <= st.session_state.current_step:
+            is_locked = False
+        else:
+            is_locked = (idx >= 1 and (not st.session_state.cv_uploaded or st.session_state.cv_needs_reanalysis)) or (
+                idx >= 2 and not st.session_state.selected_job
+            )
         
         prefix = "👉 " if is_active else ("✅ " if is_completed else "🔒 " if is_locked else "")
         return is_active, is_completed, is_locked, prefix
