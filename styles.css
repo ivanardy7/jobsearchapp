@@ -638,3 +638,11 @@ header {
     border: 1px solid rgba(142, 126, 106, 0.25) !important;
     opacity: 0.8 !important;
 }
+
+/* ── Sidebar Tool Steps Stack Styling (Steps 3, 4, 5) ── */
+[data-testid="stSidebar"] div[data-testid="element-container"]:nth-child(n+7):nth-child(-n+13) button {
+    padding: 6px 12px !important;
+    font-size: 0.82rem !important;
+    min-height: 35px !important;
+    line-height: 1.2 !important;
+}

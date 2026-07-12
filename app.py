@@ -33,7 +33,7 @@ if css_path.exists():
 STEPS = [
     {"key": "1", "label": "Input CV", "emoji": "📄", "type": "main"},
     {"key": "2", "label": "Lowongan Kerja", "emoji": "💼", "type": "main"},
-    {"key": "3", "label": "Review CV", "emoji": "✍️", "type": "tool"},
+    {"key": "3", "label": "Review & Generate CV", "emoji": "✍️", "type": "tool"},
     {"key": "4", "label": "Konsultasi Karir", "emoji": "💬", "type": "tool"},
     {"key": "5", "label": "Mock Interview", "emoji": "🎤", "type": "tool"},
 ]
@@ -287,50 +287,65 @@ with st.sidebar:
     # Clean vertical spacing instead of the complex SVG diagram
     st.markdown("<div style='margin-top: 6px;'></div>", unsafe_allow_html=True)
 
-    # 3 Parallel Columns for optional AI tools
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        is_active, is_completed, is_locked, prefix = get_step_status(2)
-        label = f"{prefix}✍️\nReview"
-        if st.button(
-            label,
-            key="nav_2",
-            use_container_width=True,
-            type="primary" if is_active else "secondary",
-            disabled=is_locked,
-            help="Review & Saran CV"
-        ):
-            go_to_step(2)
-            st.rerun()
-            
-    with col2:
-        is_active, is_completed, is_locked, prefix = get_step_status(3)
-        label = f"{prefix}💬\nKonsul"
-        if st.button(
-            label,
-            key="nav_3",
-            use_container_width=True,
-            type="primary" if is_active else "secondary",
-            disabled=is_locked,
-            help="Konsultasi Karir"
-        ):
-            go_to_step(3)
-            st.rerun()
-            
-    with col3:
-        is_active, is_completed, is_locked, prefix = get_step_status(4)
-        label = f"{prefix}🎤\nMock"
-        if st.button(
-            label,
-            key="nav_4",
-            use_container_width=True,
-            type="primary" if is_active else "secondary",
-            disabled=is_locked,
-            help="Mock Interview"
-        ):
-            go_to_step(4)
-            st.rerun()
+    # Arrow Down Connector (between step 2 and 3)
+    st.markdown(
+        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
+            ↓
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+    # 3. Review & Generate CV (Vertically Stacked)
+    is_active, is_completed, is_locked, prefix = get_step_status(2)
+    if st.button(
+        f"{prefix}✍️ 3. Review & Generate CV",
+        key="nav_2",
+        use_container_width=True,
+        type="primary" if is_active else "secondary",
+        disabled=is_locked
+    ):
+        go_to_step(2)
+        st.rerun()
+
+    # Arrow Down Connector
+    st.markdown(
+        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
+            ↓
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+    # 4. Konsultasi Karir (Vertically Stacked)
+    is_active, is_completed, is_locked, prefix = get_step_status(3)
+    if st.button(
+        f"{prefix}💬 4. Konsultasi Karir",
+        key="nav_3",
+        use_container_width=True,
+        type="primary" if is_active else "secondary",
+        disabled=is_locked
+    ):
+        go_to_step(3)
+        st.rerun()
+
+    # Arrow Down Connector
+    st.markdown(
+        """<div style='text-align:center; color:rgba(79, 140, 140, 0.25); font-size:1.3rem; margin:-6px 0 -8px 0;'>
+            ↓
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+    # 5. Mock Interview (Vertically Stacked)
+    is_active, is_completed, is_locked, prefix = get_step_status(4)
+    if st.button(
+        f"{prefix}🎤 5. Mock Interview",
+        key="nav_4",
+        use_container_width=True,
+        type="primary" if is_active else "secondary",
+        disabled=is_locked
+    ):
+        go_to_step(4)
+        st.rerun()
 
     # API & N8N Status configurations
     openai_ok = config.is_openai_configured()
