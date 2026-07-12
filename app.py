@@ -85,10 +85,9 @@ if is_auth_configured:
             </div>
         """, unsafe_allow_html=True)
         
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("🔑 Log in dengan Google", type="primary", use_container_width=True):
-                st.login("google")
+        st.markdown('<div class="login-button-wrap"></div>', unsafe_allow_html=True)
+        if st.button("🔑 Log in dengan Google", type="primary", use_container_width=True):
+            st.login("google")
         st.stop()
 else:
     if not st.session_state.bypass_login:

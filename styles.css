@@ -674,3 +674,10 @@ div[data-testid="stForm"] button[kind="formSubmit"] {
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.02);
 }
+
+/* ── Centered and Restricted Login Button to match card width ── */
+.login-button-wrap + div[data-testid="element-container"] div[data-testid="stButton"] button {
+    max-width: 550px !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
