@@ -164,26 +164,41 @@ def format_ai_summary(text: str) -> str:
     if not text:
         return ""
     
+    # Extract candidate name from title or fallback
+    candidate_name = "Kandidat"
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if "analisis" in stripped.lower() and "cv" in stripped.lower():
+            # Extract name by removing prefixes/suffixes
+            name = re.sub(r'^(?:#+\s+)?(?:Analisis\s+Profil\s+CV|Analisis\s+CV)\s+', '', stripped, flags=re.IGNORECASE)
+            name = name.rstrip(":")
+            if name:
+                candidate_name = name
+                break
+
     lines = text.strip().split("\n")
     cleaned_lines = []
     
     for line in lines:
         stripped = line.strip()
+        lower_line = stripped.lower()
+        
         # 1. Main Title
-        if re.match(r'^(?:#+\s+)?Analisis\s+CV\s+', stripped, re.IGNORECASE):
-            name = re.sub(r'^(?:#+\s+)?Analisis\s+CV\s+', '', stripped, flags=re.IGNORECASE).strip()
-            # Clean trailing colons or markers
-            name = name.rstrip(":")
-            cleaned_lines.append(f'<h2 style="text-align: center; font-weight: 800; font-size: 1.45rem; color: var(--accent-blue); margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px;">📊 CV Analysis: {name}</h2>')
+        if "analisis" in lower_line and "cv" in lower_line:
+            cleaned_lines.append(f'<h2 style="text-align: center; font-weight: 800; font-size: 1.45rem; color: var(--accent-blue); margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px;">📊 CV Analysis: {candidate_name}</h2>')
+        
         # 2. Skill Utama
-        elif re.search(r'^\s*(?:#+\s+)?(?:1\.\s+)?Skill\s+Utama', stripped, re.IGNORECASE):
+        elif "skill" in lower_line and "utama" in lower_line:
             cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 24px; margin-bottom: 12px; color: var(--accent-blue);">1. Skill Utama</h3>')
+        
         # 3. Analisis Kesesuaian
-        elif re.search(r'^\s*(?:#+\s+)?(?:2\.\s+)?Analisis\s+(?:Kecocokan|Kesesuaian)', stripped, re.IGNORECASE):
+        elif "analisis" in lower_line and ("kecocokan" in lower_line or "kesesuaian" in lower_line):
             cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">2. Analisis Kesesuaian Lowongan</h3>')
+        
         # 4. Rekomendasi
-        elif re.search(r'^\s*(?:#+\s+)?(?:3\.\s+)?Rekomendasi(?:\s+Lowongan)?', stripped, re.IGNORECASE):
+        elif "rekomendasi" in lower_line and "cocok" in lower_line:
             cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">3. Rekomendasi Lowongan Paling Cocok</h3>')
+        
         else:
             cleaned_lines.append(line)
             
