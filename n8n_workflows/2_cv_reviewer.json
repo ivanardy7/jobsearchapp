@@ -28,7 +28,7 @@
             },
             {
               "role": "user",
-              "content": "=Berikut adalah CV yang perlu di-review:\n\n{{ $json.body.cv_text }}"
+              "content": "=Berikut adalah CV yang perlu di-review:\n\n{{ $json.body.cv_text }}\n\n--- TARGET PEKERJAAN ---\n{{ $json.body.target_job ? \"Judul Posisi: \" + $json.body.target_job.job_title + \"\\nPerusahaan: \" + $json.body.target_job.company_name + \"\\nLokasi: \" + $json.body.target_job.location + \"\\nTipe Kerja: \" + $json.body.target_job.work_type + \"\\nGaji: \" + $json.body.target_job.salary + \"\\nDeskripsi Pekerjaan: \" + $json.body.target_job.job_description : \"Tidak ada target posisi spesifik (review secara umum).\" }}"
             }
           ]
         },
