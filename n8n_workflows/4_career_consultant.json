@@ -28,11 +28,11 @@
             },
             {
               "role": "user",
-              "content": "=[KONTEKS: Berikut CV saya untuk referensi]\n\n{{ $json.body.cv_text }}"
+              "content": "=[KONTEKS: Berikut CV saya untuk referensi]\n\n{{ $json.body.cv_text }}\n\n--- TARGET PEKERJAAN ---\n{{ $json.body.target_job ? \"Saya sedang menargetkan posisi spesifik:\\nJudul Posisi: \" + $json.body.target_job.job_title + \"\\nPerusahaan: \" + $json.body.target_job.company_name + \"\\nDeskripsi Pekerjaan: \" + $json.body.target_job.job_description : \"Saya ingin berkonsultasi secara umum (belum ada target posisi spesifik).\" }}"
             },
             {
               "role": "assistant",
-              "content": "Terima kasih sudah berbagi CV kamu! Saya sudah membacanya. Silakan ceritakan tentang cita-cita atau tujuan karir yang ingin kamu capai."
+              "content": "={{ $json.body.target_job ? \"Halo! Saya AI Career Consultant kamu. Saya sudah membaca CV kamu. Saya lihat kamu tertarik dengan posisi \" + $json.body.target_job.job_title + \" di \" + $json.body.target_job.company_name + \". Silakan ceritakan apa yang ingin kamu ketahui tentang posisi tersebut atau rencana persiapanmu.\" : \"Terima kasih sudah berbagi CV kamu! Saya sudah membacanya. Silakan ceritakan tentang cita-cita atau tujuan karir yang ingin kamu capai.\" }}"
             },
             {
               "role": "user",
