@@ -562,3 +562,8 @@ header {
     font-size: 0.95rem !important;
     margin-bottom: 4px !important;
 }
+
+/* ── Job Card Titles ── */
+.job-title {
+    color: var(--text-color, #e2e8f0) !important;
+}
