@@ -28,7 +28,7 @@
             },
             {
               "role": "user",
-              "content": "=CV Asli:\n\n{{ $json.body.cv_text }}"
+              "content": "=CV Asli:\n\n{{ $json.body.cv_text }}\n\n--- TARGET PEKERJAAN ---\n{{ $json.body.target_job ? \"Saya menargetkan posisi spesifik:\\nJudul Posisi: \" + $json.body.target_job.job_title + \"\\nPerusahaan: \" + $json.body.target_job.company_name + \"\\nDeskripsi Pekerjaan: \" + $json.body.target_job.job_description : \"Tidak ada target posisi spesifik (optimalkan secara umum saja).\" }}"
             }
           ]
         },
