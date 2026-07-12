@@ -339,43 +339,46 @@ with st.sidebar:
             go_to_step(4)
             st.rerun()
 
-    # API Status
-    st.markdown("---")
-    if config.is_openai_configured():
-        st.success("✅ OpenAI API Connected", icon="🔑")
-    else:
-        st.warning("⚠️ OpenAI API key belum diatur", icon="🔑")
-        st.caption("Tambahkan di file `.env`")
-
-    # N8N Status
+    # Compact API & N8N Status badges
+    st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
+    openai_ok = config.is_openai_configured()
     _use_n8n = config.USE_N8N or config._get_config("USE_N8N", "false").lower() == "true"
+    n8n_ok = config.is_n8n_configured() if _use_n8n else True
+
+    openai_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔑 OpenAI: OK</span>' if openai_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔑 OpenAI: Err</span>'
     if _use_n8n:
-        if config.is_n8n_configured():
-            st.success("✅ N8N Connected", icon="🔗")
-        else:
-            st.warning("⚠️ N8N URL belum diatur", icon="🔗")
+        n8n_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔗 N8N: OK</span>' if n8n_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔗 N8N: Err</span>'
     else:
-        st.info("💻 Mode: Local (tanpa N8N)", icon="🏠")
-    # User Profile & Logout
+        n8n_badge = '<span style="background:rgba(140, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#8c8277; font-weight:600; border: 1px solid rgba(140,140,140,0.2);">🏠 Local Mode</span>'
+
+    st.markdown(
+        f"""<div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 2px;">
+            {openai_badge}
+            {n8n_badge}
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+    # Compact User Profile & Logout
     if st.user.is_logged_in:
-        st.markdown("---")
+        st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
         user_name = st.user.get("name", st.user.get("email", "User"))
-        user_email = st.user.get("email", "")
-        st.markdown(
-            f"""<div style="background-color: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 10px;">
-                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">👤 {user_name}</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary);">{user_email}</div>
-            </div>""",
-            unsafe_allow_html=True
-        )
-        if st.button("🚪 Log Out", use_container_width=True, type="secondary"):
-            st.logout()
+        
+        col_prof_1, col_prof_2 = st.columns([1.7, 1])
+        with col_prof_1:
+            st.markdown(f'<div style="font-weight: 700; font-size: 0.8rem; color: var(--text-primary); padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{user_name}">👤 {user_name}</div>', unsafe_allow_html=True)
+        with col_prof_2:
+            if st.button("🚪 Out", use_container_width=True, type="secondary", key="logout_btn", help="Log Out"):
+                st.logout()
     elif st.session_state.bypass_login:
-        st.markdown("---")
-        st.info("🛠️ Mode: Developer Bypass")
-        if st.button("🚪 Kembali ke Login", use_container_width=True, type="secondary"):
-            st.session_state.bypass_login = False
-            st.rerun()
+        st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
+        col_prof_1, col_prof_2 = st.columns([1.7, 1])
+        with col_prof_1:
+            st.markdown('<div style="font-weight: 700; font-size: 0.8rem; color: #d97706; padding-top: 5px;">🛠️ Dev Mode</div>', unsafe_allow_html=True)
+        with col_prof_2:
+            if st.button("🚪 Out", use_container_width=True, type="secondary", key="dev_logout_btn", help="Kembali ke Login"):
+                st.session_state.bypass_login = False
+                st.rerun()
 
 # ═══════════════════════════════════════════════════════════
 # STEP A: INPUT CV
