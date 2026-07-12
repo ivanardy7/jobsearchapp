@@ -1137,7 +1137,7 @@ elif st.session_state.current_step == 4:
                                 )
                                 if result["available"] and result["response"]:
                                     st.session_state.interview_history.append(
-                                        {"role": "assistant", "content": Annapolis_response := result["response"]}
+                                        {"role": "assistant", "content": result["response"]}
                                     )
                             st.rerun()
 
