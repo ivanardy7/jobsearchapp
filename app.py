@@ -353,7 +353,8 @@ with st.sidebar:
         st.caption("Tambahkan di file `.env`")
 
     # N8N Status
-    if config.USE_N8N:
+    _use_n8n = config.USE_N8N or config._get_config("USE_N8N", "false").lower() == "true"
+    if _use_n8n:
         if config.is_n8n_configured():
             st.success("✅ N8N Connected", icon="🔗")
         else:

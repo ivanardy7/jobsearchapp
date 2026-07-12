@@ -56,7 +56,7 @@ def generate_sql_query(natural_language_query: str) -> str:
         return ""
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
         response = client.chat.completions.create(
             model=config.OPENAI_MODEL,
             messages=[
@@ -126,7 +126,7 @@ def query_jobs_natural_language(question: str) -> dict:
                 result["ai_explanation"] = f"Ditemukan {len(results)} hasil."
         elif config.is_openai_configured():
             try:
-                client = OpenAI(api_key=config.OPENAI_API_KEY)
+                client = OpenAI(api_key=config.get_openai_api_key())
                 context = f"Pertanyaan: {question}\nSQL: {sql_query}\nHasil ({len(results)} rows): {str(results[:10])}"
 
                 response = client.chat.completions.create(

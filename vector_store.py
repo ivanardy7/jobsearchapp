@@ -12,8 +12,8 @@ class VectorStoreManager:
     """Manages Qdrant vector store for semantic job search."""
 
     def __init__(self):
-        self.url = config.QDRANT_URL
-        self.api_key = config.QDRANT_API_KEY
+        self.url = config.QDRANT_URL or config._get_config("QDRANT_URL", "")
+        self.api_key = config.QDRANT_API_KEY or config._get_config("QDRANT_API_KEY", "")
         self.collection_name = config.COLLECTION_NAME
         
         # Connect to Qdrant Cloud

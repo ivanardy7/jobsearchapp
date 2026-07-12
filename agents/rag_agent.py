@@ -84,7 +84,7 @@ Berikan analisis singkat:
             result["ai_summary"] = f"Error N8N: {str(e)}"
     elif config.is_openai_configured():
         try:
-            client = OpenAI(api_key=config.OPENAI_API_KEY)
+            client = OpenAI(api_key=config.get_openai_api_key())
             response = client.chat.completions.create(
                 model=config.OPENAI_MODEL,
                 messages=[

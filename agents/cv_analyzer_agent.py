@@ -123,7 +123,7 @@ dan berikan saran konkret agar CV lebih menarik untuk posisi ini."""
         }
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
         user_content = f"Berikut adalah CV yang perlu di-review:\n\n{cv_text}{target_context}"
         response = client.chat.completions.create(
             model=config.OPENAI_MODEL,
@@ -180,7 +180,7 @@ Sesuaikan keywords, skills, dan pengalaman yang di-highlight agar relevan dengan
         return {"ats_text": None, "available": False}
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
         user_content = f"CV Asli:\n\n{cv_text}{target_context}"
         response = client.chat.completions.create(
             model=config.OPENAI_MODEL,

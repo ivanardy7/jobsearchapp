@@ -21,7 +21,8 @@ def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
     Returns:
         dict with the response data, or {"error": "..."} on failure
     """
-    url = config.N8N_WEBHOOK_URL.rstrip("/") + endpoint
+    webhook_url = config.N8N_WEBHOOK_URL or config._get_config("N8N_WEBHOOK_URL", "")
+    url = webhook_url.rstrip("/") + endpoint
 
     try:
         response = requests.post(

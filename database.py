@@ -65,7 +65,7 @@ class DatabaseManager:
     """Manages SQLite/MySQL database connections and queries."""
 
     def __init__(self, db_url: Optional[str] = None):
-        self.db_url = db_url or config.DATABASE_URL
+        self.db_url = db_url or config.DATABASE_URL or config._get_config("DATABASE_URL", "")
         
         # Format URL for MySQL and add SSL if necessary
         if self.db_url.startswith("mysql"):

@@ -64,7 +64,7 @@ def get_career_response(
         }
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
 
         # Build system prompt with target job context
         enhanced_prompt = SYSTEM_PROMPT

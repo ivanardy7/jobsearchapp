@@ -55,14 +55,28 @@ SUPPORTED_CV_FORMATS = [".pdf", ".docx", ".doc"]
 TOP_K_RESULTS = 10
 
 
+def get_openai_api_key() -> str:
+    """Get OpenAI API key, re-reading from st.secrets if needed."""
+    if OPENAI_API_KEY:
+        return OPENAI_API_KEY
+    return _get_config("OPENAI_API_KEY", "")
+
+
 def is_openai_configured() -> bool:
     """Check if OpenAI API key is set and valid-looking."""
-    return bool(OPENAI_API_KEY and OPENAI_API_KEY.startswith("sk-"))
+    key = get_openai_api_key()
+    return bool(key and key.startswith("sk-"))
 
 
 def is_n8n_configured() -> bool:
     """Check if N8N webhook URL is set and USE_N8N is enabled."""
-    return USE_N8N and bool(N8N_WEBHOOK_URL)
+    use = USE_N8N
+    if not use:
+        use = _get_config("USE_N8N", "false").lower() == "true"
+    url = N8N_WEBHOOK_URL
+    if not url:
+        url = _get_config("N8N_WEBHOOK_URL", "")
+    return use and bool(url)
 
 
 def ensure_data_dir():

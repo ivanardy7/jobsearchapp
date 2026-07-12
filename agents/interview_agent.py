@@ -70,7 +70,7 @@ def start_interview(cv_text: str, job_info: dict) -> dict:
         return {"response": None, "available": False}
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
 
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
@@ -143,7 +143,7 @@ def continue_interview(
         return {"response": None, "available": False}
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
 
         system_prompt = INTERVIEWER_PROMPT.format(
             job_title=job_info.get("job_title", "Unknown Position"),
@@ -205,7 +205,7 @@ def transcribe_audio(audio_bytes: bytes) -> str:
         return ""
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
         audio_file = io.BytesIO(audio_bytes)
         audio_file.name = "recording.wav"
 
@@ -229,7 +229,7 @@ def text_to_speech(text: str) -> bytes:
         return b""
 
     try:
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
+        client = OpenAI(api_key=config.get_openai_api_key())
         response = client.audio.speech.create(
             model="tts-1",
             voice="nova",  # Natural female voice, good for Indonesian
