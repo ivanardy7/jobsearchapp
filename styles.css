@@ -280,25 +280,25 @@ div[data-testid="stVerticalBlockBorderWrapper"] > div {
 
 /* ── Chat Bubbles ────────────────────────────────────────── */
 .chat-user {
-    background: rgba(0, 212, 255, 0.1);
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    background: #1a1a2e !important;
+    border: 1px solid rgba(0, 212, 255, 0.3);
     border-radius: 16px 16px 4px 16px;
     padding: 14px 18px;
     margin: 8px 0;
     margin-left: 40px;
-    color: var(--text-color, #e2e8f0) !important;
+    color: #e2e8f0 !important;
     font-size: 0.92rem;
     line-height: 1.5;
 }
 
 .chat-ai {
-    background: rgba(124, 58, 237, 0.08);
-    border: 1px solid rgba(124, 58, 237, 0.15);
+    background: #0d0d24 !important;
+    border: 1px solid rgba(124, 58, 237, 0.3);
     border-radius: 16px 16px 16px 4px;
     padding: 14px 18px;
     margin: 8px 0;
     margin-right: 40px;
-    color: var(--text-color, #e2e8f0) !important;
+    color: #e2e8f0 !important;
     font-size: 0.92rem;
     line-height: 1.5;
 }
