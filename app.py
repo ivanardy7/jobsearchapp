@@ -230,7 +230,7 @@ def render_job_card(job: dict, show_score: bool = True, is_selected: bool = Fals
     <div style="width:100%; margin-bottom:8px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div>
-                <div class="job-title" style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">{title}</div>
+                <div class="job-title" style="font-size:1.15rem; font-weight:700; color:var(--text-color, #e2e8f0); margin-bottom:6px;">{title}</div>
                 <div class="job-company" style="font-size:0.95rem; color:var(--accent-blue); font-weight:500; margin-bottom:10px;">🏢 {company}</div>
             </div>
             <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">{right_badges}</div>
@@ -573,7 +573,7 @@ elif st.session_state.current_step == 1:
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <h4 style="color:var(--accent-emerald); margin:0;">🎯 Posisi Target Terpilih {source_badge}</h4>
-                        <p style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin:4px 0 2px 0;">
+                        <p style="font-size:1.1rem; font-weight:600; color:var(--text-color, #e2e8f0); margin:4px 0 2px 0;">
                             {sel.get('job_title', 'N/A')} — {sel.get('company_name', 'N/A')}
                         </p>
                         <span class="job-tag location">📍 {sel.get('location', 'N/A')}</span>
