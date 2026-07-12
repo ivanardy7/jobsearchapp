@@ -160,35 +160,34 @@ def render_match_badge(score: float) -> str:
 
 
 def format_ai_summary(text: str) -> str:
-    """Format AI summary headings to be centered, bold, and larger."""
+    """Format AI summary headings to be centered, bold, and larger, while avoiding markdown parsing bugs."""
     if not text:
         return ""
     
-    # 1. Skill Utama dari CV
-    text = re.sub(
-        r'(?:1\.\s+)?Skill\s+Utama(?:\s+dari\s+CV)?:?',
-        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 24px; margin-bottom: 12px; color: var(--accent-blue);">1. Skill Utama</h3>',
-        text,
-        flags=re.IGNORECASE
-    )
+    lines = text.strip().split("\n")
+    cleaned_lines = []
     
-    # 2. Analisis Kesesuaian Lowongan
-    text = re.sub(
-        r'(?:2\.\s+)?Analisis\s+(?:Kecocokan|Kesesuaian)(?:\s+untuk\s+Setiap\s+Lowongan|\s+Lowongan)?:?',
-        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">2. Analisis Kesesuaian Lowongan</h3>',
-        text,
-        flags=re.IGNORECASE
-    )
-
-    # 3. Rekomendasi Lowongan Paling Cocok
-    text = re.sub(
-        r'(?:3\.\s+)?Rekomendasi(?:\s+Lowongan\s+Paling\s+Cocok)?:?',
-        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">3. Rekomendasi Lowongan Paling Cocok</h3>',
-        text,
-        flags=re.IGNORECASE
-    )
-    
-    return text
+    for line in lines:
+        stripped = line.strip()
+        # 1. Main Title
+        if re.match(r'^(?:#+\s+)?Analisis\s+CV\s+', stripped, re.IGNORECASE):
+            name = re.sub(r'^(?:#+\s+)?Analisis\s+CV\s+', '', stripped, flags=re.IGNORECASE).strip()
+            # Clean trailing colons or markers
+            name = name.rstrip(":")
+            cleaned_lines.append(f'<h2 style="text-align: center; font-weight: 800; font-size: 1.45rem; color: var(--accent-blue); margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px;">📊 CV Analysis: {name}</h2>')
+        # 2. Skill Utama
+        elif re.search(r'^\s*(?:#+\s+)?(?:1\.\s+)?Skill\s+Utama', stripped, re.IGNORECASE):
+            cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 24px; margin-bottom: 12px; color: var(--accent-blue);">1. Skill Utama</h3>')
+        # 3. Analisis Kesesuaian
+        elif re.search(r'^\s*(?:#+\s+)?(?:2\.\s+)?Analisis\s+(?:Kecocokan|Kesesuaian)', stripped, re.IGNORECASE):
+            cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">2. Analisis Kesesuaian Lowongan</h3>')
+        # 4. Rekomendasi
+        elif re.search(r'^\s*(?:#+\s+)?(?:3\.\s+)?Rekomendasi(?:\s+Lowongan)?', stripped, re.IGNORECASE):
+            cleaned_lines.append('<h3 style="text-align: center; font-weight: 800; font-size: 1.2rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">3. Rekomendasi Lowongan Paling Cocok</h3>')
+        else:
+            cleaned_lines.append(line)
+            
+    return "\n".join(cleaned_lines)
 
 
 def _source_badge_html(source: str) -> str:
