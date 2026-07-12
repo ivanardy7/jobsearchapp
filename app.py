@@ -166,16 +166,16 @@ def format_ai_summary(text: str) -> str:
     
     # 1. Skill Utama dari CV
     text = re.sub(
-        r'(?:1\.\s+)?Skill\s+Utama\s+dari\s+CV:?',
-        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 24px; margin-bottom: 12px; color: var(--accent-blue);">1. Skill Utama dari CV</h3>',
+        r'(?:1\.\s+)?Skill\s+Utama(?:\s+dari\s+CV)?:?',
+        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 24px; margin-bottom: 12px; color: var(--accent-blue);">1. Skill Utama</h3>',
         text,
         flags=re.IGNORECASE
     )
     
-    # 2. Analisis Kecocokan untuk Setiap Lowongan / Analisis Kecocokan
+    # 2. Analisis Kesesuaian Lowongan
     text = re.sub(
-        r'(?:2\.\s+)?Analisis\s+Kecocokan(?:\s+untuk\s+Setiap\s+Lowongan)?:?',
-        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">2. Analisis Kecocokan untuk Setiap Lowongan</h3>',
+        r'(?:2\.\s+)?Analisis\s+(?:Kecocokan|Kesesuaian)(?:\s+untuk\s+Setiap\s+Lowongan|\s+Lowongan)?:?',
+        '<h3 style="text-align: center; font-weight: 800; font-size: 1.25rem; margin-top: 28px; margin-bottom: 12px; color: var(--accent-blue);">2. Analisis Kesesuaian Lowongan</h3>',
         text,
         flags=re.IGNORECASE
     )
