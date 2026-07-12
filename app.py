@@ -350,17 +350,22 @@ with st.sidebar:
     else:
         n8n_badge = '<span style="background:rgba(140, 140, 140, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#8c8277; font-weight:600; border: 1px solid rgba(140,140,140,0.2);">🏠 Local Mode</span>'
 
-    # Unified footer card for Status & User profile to clean up layout
+    # 1. Status Badges Row (Independent Row at the top)
+    st.markdown(
+        f"""<div style="display:flex; justify-content:space-between; gap:4px; margin-top: 15px; margin-bottom: 5px;">
+            {openai_badge}
+            {n8n_badge}
+        </div>""",
+        unsafe_allow_html=True
+    )
+
+    # 2. Unified Profile Card & Logout (Grouped at the bottom)
     user_name = st.user.get("name", st.user.get("email", "User")) if st.user.is_logged_in else None
     
     if user_name:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 12px; margin-top: 25px; margin-bottom: 8px;">
-                <div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 10px;">
-                    {openai_badge}
-                    {n8n_badge}
-                </div>
-                <div style="border-top: 1.5px solid rgba(79, 140, 140, 0.12); padding-top: 8px; font-weight: 700; font-size: 0.82rem; color: var(--text-primary);">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-bottom: 0px; border-bottom: none;">
+                <div style="font-weight: 700; font-size: 0.82rem; color: var(--text-primary);">
                     👤 {user_name}
                 </div>
             </div>""",
@@ -371,12 +376,8 @@ with st.sidebar:
             
     elif st.session_state.bypass_login:
         st.markdown(
-            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 12px; margin-top: 25px; margin-bottom: 8px;">
-                <div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 10px;">
-                    {openai_badge}
-                    {n8n_badge}
-                </div>
-                <div style="border-top: 1.5px solid rgba(79, 140, 140, 0.12); padding-top: 8px; font-weight: 700; font-size: 0.82rem; color: #d97706;">
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px 12px 0 0; padding: 12px; margin-bottom: 0px; border-bottom: none;">
+                <div style="font-weight: 700; font-size: 0.82rem; color: #d97706;">
                     🛠️ Developer Mode
                 </div>
             </div>""",
