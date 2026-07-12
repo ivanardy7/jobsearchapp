@@ -169,8 +169,10 @@ def format_ai_summary(text: str) -> str:
     for line in text.split("\n"):
         stripped = line.strip()
         if "analisis" in stripped.lower() and "cv" in stripped.lower():
-            # Extract name by removing prefixes/suffixes
-            name = re.sub(r'^(?:#+\s+)?(?:Analisis\s+Profil\s+CV|Analisis\s+CV)\s+', '', stripped, flags=re.IGNORECASE)
+            # Remove markdown bold/italic asterisks
+            name = stripped.replace("**", "").replace("*", "")
+            # Extract name by removing prefixes
+            name = re.sub(r'^(?:#+\s+)?(?:Analisis\s+Profil\s+CV|Analisis\s+CV|CV\s+Analysis)\s*', '', name, flags=re.IGNORECASE)
             name = name.rstrip(":")
             if name:
                 candidate_name = name
