@@ -55,6 +55,7 @@ defaults = {
     "interview_job": None,
     "interview_started": False,
     "bypass_login": False,
+    "internet_jobs": [],
 }
 
 for key, value in defaults.items():
@@ -190,7 +191,24 @@ def format_ai_summary(text: str) -> str:
     return text
 
 
-def render_job_card(job: dict, show_score: bool = True, is_selected: bool = False) -> str:
+def _source_badge_html(source: str) -> str:
+    """Generate HTML badge for job source."""
+    badge_map = {
+        "Dataset": ("📊", "#f59e0b", "rgba(245, 158, 11, 0.12)"),
+        "LinkedIn": ("🔗", "#0077b5", "rgba(0, 119, 181, 0.12)"),
+        "JobStreet": ("🏢", "#5843be", "rgba(88, 67, 190, 0.12)"),
+        "Google Jobs": ("🔍", "#4285f4", "rgba(66, 133, 244, 0.12)"),
+    }
+    emoji, color, bg = badge_map.get(source, ("🌐", "#94a3b8", "rgba(148, 163, 184, 0.12)"))
+    return (
+        f'<span style="display:inline-flex; align-items:center; gap:4px; '
+        f'padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:600; '
+        f'color:{color}; background:{bg}; border:1px solid {color}30;">'
+        f'{emoji} {source}</span>'
+    )
+
+
+def render_job_card(job: dict, show_score: bool = True, is_selected: bool = False, source: str = "") -> str:
     """Generate HTML for a job listing card."""
     meta = job.get("metadata", job)
     title = meta.get("job_title", "Unknown Position")
@@ -202,9 +220,11 @@ def render_job_card(job: dict, show_score: bool = True, is_selected: bool = Fals
         salary = "Tidak disebutkan"
     score = job.get("similarity_score", 0)
 
-    score_html = ""
+    right_badges = ""
     if show_score and score > 0:
-        score_html = render_match_badge(score)
+        right_badges += render_match_badge(score)
+    if source:
+        right_badges += f" {_source_badge_html(source)}"
 
     html_str = f"""
     <div style="width:100%; margin-bottom:8px;">
@@ -213,7 +233,7 @@ def render_job_card(job: dict, show_score: bool = True, is_selected: bool = Fals
                 <div class="job-title" style="font-size:1.15rem; font-weight:700; color:var(--text-primary); margin-bottom:6px;">{title}</div>
                 <div class="job-company" style="font-size:0.95rem; color:var(--accent-blue); font-weight:500; margin-bottom:10px;">🏢 {company}</div>
             </div>
-            {score_html}
+            <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">{right_badges}</div>
         </div>
         <div class="job-meta" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
             <span class="job-tag location">📍 {location}</span>
@@ -500,264 +520,214 @@ if st.session_state.current_step == 0:
 
 
 # ═══════════════════════════════════════════════════════════
-# STEP B: LOWONGAN KERJA
+# STEP B: LOWONGAN KERJA (UNIFIED VIEW)
 # ═══════════════════════════════════════════════════════════
 elif st.session_state.current_step == 1:
     st.markdown(
         """<div class="hero-container animate-fade-in">
             <div class="hero-title">💼 Rekomendasi Lowongan Kerja</div>
             <div class="hero-subtitle">
-                AI mencocokkan CV kamu dengan database lowongan pekerjaan di Indonesia.<br>
+                AI mencocokkan CV kamu dengan database lowongan pekerjaan di Indonesia dan memberikan saran posisi dari berbagai platform.<br>
                 <strong style="color:var(--accent-emerald);">Pilih satu posisi target</strong> untuk melanjutkan ke Review CV, Konsultasi Karir, dan Mock Interview.
             </div>
         </div>""",
         unsafe_allow_html=True,
     )
 
-    tab1, tab2 = st.tabs(["🔍 Dari Dataset (AI Match)", "🌐 Cari di Internet"])
+    # ── Run Dataset matching if not done yet ──
+    if not st.session_state.job_matches:
+        with st.spinner("🤖 AI sedang mencocokkan CV kamu dengan database lowongan..."):
+            try:
+                from agents.rag_agent import match_cv_to_jobs
+                result = match_cv_to_jobs(st.session_state.cv_text, top_k=config.TOP_K_RESULTS)
+                st.session_state.job_matches = result.get("matches", [])
+                st.session_state.ai_summary = result.get("ai_summary")
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)}")
 
-    # ── Tab 1: From Dataset (RAG) ──
-    with tab1:
+    # ── Run AI internet suggestions if not done yet ──
+    if not st.session_state.internet_jobs:
+        with st.spinner("🌐 AI sedang mencari saran lowongan dari berbagai platform..."):
+            try:
+                from agents.web_job_agent import generate_job_suggestions
+                st.session_state.internet_jobs = generate_job_suggestions(st.session_state.cv_text)
+            except Exception:
+                st.session_state.internet_jobs = []
+
+    # ── Show AI summary if available ──
+    if st.session_state.ai_summary:
+        with st.expander("🤖 Analisis AI", expanded=True):
+            formatted_summary = format_ai_summary(st.session_state.ai_summary)
+            st.markdown(formatted_summary, unsafe_allow_html=True)
+
+    # ── Show selected position banner ──
+    if st.session_state.selected_job:
+        sel = st.session_state.selected_job
+        sel_salary = sel.get("salary", sel.get("salary_raw", "Tidak disebutkan"))
+        if sel_salary == "None" or not sel_salary:
+            sel_salary = "Tidak disebutkan"
+        sel_source = sel.get("source", "")
+        source_badge = f" {_source_badge_html(sel_source)}" if sel_source else ""
         st.markdown(
-            """<style>
-            div[data-testid="stVerticalBlockBorderWrapper"] {
-                border: 3px solid #FFC107 !important;
-                border-radius: 16px !important;
-                background-color: rgba(255, 193, 7, 0.02) !important;
-                box-shadow: 0 4px 12px rgba(255, 193, 7, 0.1) !important;
-                transition: all 0.3s ease;
-            }
-            div[data-testid="stVerticalBlockBorderWrapper"]:hover {
-                border-color: #FFD700 !important;
-                box-shadow: 0 6px 16px rgba(255, 215, 0, 0.2) !important;
-            }
-            </style>""",
-            unsafe_allow_html=True
-        )
-        # Run matching if not done yet
-        if not st.session_state.job_matches:
-            with st.spinner("🤖 AI sedang mencocokkan CV kamu dengan lowongan..."):
-                try:
-                    from agents.rag_agent import match_cv_to_jobs
-                    result = match_cv_to_jobs(st.session_state.cv_text, top_k=config.TOP_K_RESULTS)
-                    st.session_state.job_matches = result.get("matches", [])
-                    st.session_state.ai_summary = result.get("ai_summary")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
-                    st.info("💡 Pastikan `data_preparation.py` sudah dijalankan untuk menyiapkan data.")
-
-        # Show AI summary if available
-        if st.session_state.ai_summary:
-            with st.expander("🤖 Analisis AI", expanded=True):
-                formatted_summary = format_ai_summary(st.session_state.ai_summary)
-                st.markdown(formatted_summary, unsafe_allow_html=True)
-
-        # Show selected position banner
-        if st.session_state.selected_job:
-            sel = st.session_state.selected_job
-            sel_salary = sel.get("salary", sel.get("salary_raw", "Tidak disebutkan"))
-            if sel_salary == "None" or not sel_salary:
-                sel_salary = "Tidak disebutkan"
-            st.markdown(
-                f"""<div class="glass-card" style="border-left: 4px solid var(--accent-emerald); margin-bottom: 1rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <h4 style="color:var(--accent-emerald); margin:0;">🎯 Posisi Target Terpilih</h4>
-                            <p style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin:4px 0 2px 0;">
-                                {sel.get('job_title', 'N/A')} — {sel.get('company_name', 'N/A')}
-                            </p>
-                            <span class="job-tag location">📍 {sel.get('location', 'N/A')}</span>
-                            <span class="job-tag work-type">💼 {sel.get('work_type', 'N/A')}</span>
-                            <span class="job-tag salary">💰 {sel_salary}</span>
-                        </div>
-                    </div>
-                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">
-                        ✅ Step C (Review CV), D (Konsultasi Karir), dan E (Mock Interview) akan diarahkan untuk posisi ini.
-                    </p>
-                </div>""",
-                unsafe_allow_html=True,
-            )
-
-        # Show job matches
-        if st.session_state.job_matches:
-            # Instruction banner if no position selected yet
-            if not st.session_state.selected_job:
-                st.markdown(
-                    """<div class="glass-card" style="border-left: 4px solid var(--accent-amber); margin-bottom: 1rem;">
-                        <h4 style="color:var(--accent-amber); margin:0;">👇 Pilih Posisi Target Kamu</h4>
-                        <p style="font-size:0.88rem; color:var(--text-secondary); margin:4px 0 0 0;">
-                            Klik tombol <strong>"🎯 Targetkan Posisi Ini"</strong> pada lowongan yang kamu minati.
-                            Setelah memilih, Review CV, Konsultasi Karir, dan Mock Interview akan disesuaikan untuk posisi tersebut.
+            f"""<div class="glass-card" style="border-left: 4px solid var(--accent-emerald); margin-bottom: 1rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h4 style="color:var(--accent-emerald); margin:0;">🎯 Posisi Target Terpilih {source_badge}</h4>
+                        <p style="font-size:1.1rem; font-weight:600; color:var(--text-primary); margin:4px 0 2px 0;">
+                            {sel.get('job_title', 'N/A')} — {sel.get('company_name', 'N/A')}
                         </p>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
-
-            st.markdown(f"### Ditemukan {len(st.session_state.job_matches)} Lowongan yang Cocok")
-
-            # Filters
-            col_f1, col_f2 = st.columns(2)
-            with col_f1:
-                min_score = st.slider("Minimum Match Score", 0, 100, 0, step=5)
-            with col_f2:
-                sort_order = st.selectbox("Urutkan", ["Tertinggi", "Terendah"])
-
-            filtered = [j for j in st.session_state.job_matches if j.get("similarity_score", 0) >= min_score]
-            filtered.sort(
-                key=lambda x: x.get("similarity_score", 0),
-                reverse=(sort_order == "Tertinggi"),
-            )
-
-            for job in filtered:
-                meta = job.get("metadata", {})
-                is_selected = (
-                    st.session_state.selected_job is not None
-                    and st.session_state.selected_job.get("job_title") == meta.get("job_title")
-                    and st.session_state.selected_job.get("company_name") == meta.get("company_name")
-                )
-
-                # Group the vacancy information and its actions inside a single bordered container card
-                with st.container(border=True):
-                    # Show selection banner at the top of the bubble if active
-                    if is_selected:
-                        st.markdown(
-                            '<div style="background-color: rgba(16, 185, 129, 0.08); '
-                            'border-left: 4px solid var(--accent-emerald); '
-                            'padding: 8px 12px; '
-                            'border-radius: 6px; '
-                            'font-size: 0.88rem; '
-                            'font-weight: 700; '
-                            'color: var(--accent-emerald); '
-                            'margin-bottom: 12px;">'
-                            '🎯 Posisi Target Aktif Anda'
-                            '</div>', 
-                            unsafe_allow_html=True
-                        )
-                    
-                    # Render vacancy info
-                    st.markdown(render_job_card(job, is_selected=is_selected), unsafe_allow_html=True)
-                    
-                    # Actions inside the same container card
-                    col_sel, col_empty = st.columns([1, 1])
-                    with col_sel:
-                        if is_selected:
-                            st.success("✅ Terpilih sebagai target")
-                        else:
-                            if st.button(
-                                "🎯 Targetkan Posisi Ini",
-                                key=f"select_{job.get('id', '')}",
-                                type="primary",
-                                use_container_width=True,
-                            ):
-                                st.session_state.selected_job = {
-                                    "job_title": meta.get("job_title", ""),
-                                    "company_name": meta.get("company_name", ""),
-                                    "location": meta.get("location", ""),
-                                    "work_type": meta.get("work_type", ""),
-                                    "salary": meta.get("salary", "None"),
-                                    "job_description": job.get("document", ""),
-                                }
-                                st.session_state.interview_job = {
-                                    "job_title": meta.get("job_title", ""),
-                                    "company_name": meta.get("company_name", ""),
-                                    "job_description": job.get("document", ""),
-                                }
-                                # Reset CV feedback & ATS since target changed
-                                st.session_state.cv_feedback = None
-                                st.session_state.ats_cv_text = None
-                                st.session_state.career_chat_history = []
-                                st.rerun()
-
-                    # Expander inside the same container card
-                    with st.expander("📋 Lihat Detail Lowongan", expanded=False):
-                        st.markdown(job.get("document", "No description available."))
-        else:
-            if st.session_state.cv_uploaded:
-                from vector_store import VectorStoreManager
-                vs_count = 0
-                try:
-                    vs_count = VectorStoreManager().get_collection_count()
-                except Exception:
-                    pass
-                cv_len = len(st.session_state.cv_text) if st.session_state.cv_text else 0
-                st.info(f"🔍 Belum ada hasil. (Panjang CV: {cv_len} karakter, Jumlah lowongan di DB: {vs_count}). Coba klik tombol di bawah untuk mencari ulang.")
-                if st.button("🔄 Cari Ulang"):
-                    st.session_state.job_matches = []
-                    st.rerun()
-
-    # ── Tab 2: External Job Search ──
-    with tab2:
-        st.markdown(
-            """<div class="glass-card">
-                <h4 style="color:var(--accent-blue);">🌐 Cari Lowongan di Internet</h4>
-                <p style="font-size:0.9rem; color:var(--text-secondary);">
-                    Berdasarkan CV kamu, kami telah menyiapkan link pencarian ke platform lowongan kerja populer.
+                        <span class="job-tag location">📍 {sel.get('location', 'N/A')}</span>
+                        <span class="job-tag work-type">💼 {sel.get('work_type', 'N/A')}</span>
+                        <span class="job-tag salary">💰 {sel_salary}</span>
+                    </div>
+                </div>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:8px;">
+                    ✅ Step C (Review CV), D (Konsultasi Karir), dan E (Mock Interview) akan diarahkan untuk posisi ini.
                 </p>
             </div>""",
             unsafe_allow_html=True,
         )
 
-        # Extract keywords from CV for search
-        cv_short = st.session_state.cv_text[:500] if st.session_state.cv_text else ""
-        # Use job title from top match or generic
-        if st.session_state.job_matches:
-            search_keyword = st.session_state.job_matches[0].get("metadata", {}).get("job_title", "")
-        else:
-            search_keyword = ""
-
-        custom_keyword = st.text_input(
-            "🔑 Keyword Pencarian (edit sesuai keinginan):",
-            value=search_keyword,
-            placeholder="contoh: Data Analyst, Software Engineer",
+    # ── Instruction banner if no position selected yet ──
+    if not st.session_state.selected_job:
+        st.markdown(
+            """<div class="glass-card" style="border-left: 4px solid var(--accent-amber); margin-bottom: 1rem;">
+                <h4 style="color:var(--accent-amber); margin:0;">👇 Pilih Posisi Target Kamu</h4>
+                <p style="font-size:0.88rem; color:var(--text-secondary); margin:4px 0 0 0;">
+                    Klik tombol <strong>"🎯 Targetkan Posisi Ini"</strong> pada lowongan yang kamu minati.
+                    Setelah memilih, Review CV, Konsultasi Karir, dan Mock Interview akan disesuaikan untuk posisi tersebut.
+                </p>
+            </div>""",
+            unsafe_allow_html=True,
         )
 
-        if custom_keyword:
-            encoded = urllib.parse.quote(custom_keyword)
+    # ── Helper function to render a selectable job card ──
+    def _render_selectable_card(job_data: dict, card_key: str, source: str, description: str = ""):
+        """Render a job card with select button inside a bordered container."""
+        meta = job_data if source != "Dataset" else job_data.get("metadata", {})
+        job_title = meta.get("job_title", "")
+        company_name = meta.get("company_name", "")
 
-            st.markdown("### 🔗 Link Pencarian")
+        is_selected = (
+            st.session_state.selected_job is not None
+            and st.session_state.selected_job.get("job_title") == job_title
+            and st.session_state.selected_job.get("company_name") == company_name
+        )
+
+        with st.container(border=True):
+            if is_selected:
+                st.markdown(
+                    '<div style="background-color: rgba(16, 185, 129, 0.08); '
+                    'border-left: 4px solid var(--accent-emerald); '
+                    'padding: 8px 12px; border-radius: 6px; font-size: 0.88rem; '
+                    'font-weight: 700; color: var(--accent-emerald); margin-bottom: 12px;">'
+                    '🎯 Posisi Target Aktif Anda</div>',
+                    unsafe_allow_html=True,
+                )
+
+            st.markdown(render_job_card(job_data, is_selected=is_selected, source=source), unsafe_allow_html=True)
+
+            col_sel, col_empty = st.columns([1, 1])
+            with col_sel:
+                if is_selected:
+                    st.success("✅ Terpilih sebagai target")
+                else:
+                    if st.button("🎯 Targetkan Posisi Ini", key=card_key, type="primary", use_container_width=True):
+                        desc = description or job_data.get("document", "") or meta.get("description", "")
+                        st.session_state.selected_job = {
+                            "job_title": job_title,
+                            "company_name": company_name,
+                            "location": meta.get("location", ""),
+                            "work_type": meta.get("work_type", ""),
+                            "salary": meta.get("salary", "None"),
+                            "job_description": desc,
+                            "source": source,
+                        }
+                        st.session_state.interview_job = {
+                            "job_title": job_title,
+                            "company_name": company_name,
+                            "job_description": desc,
+                        }
+                        st.session_state.cv_feedback = None
+                        st.session_state.ats_cv_text = None
+                        st.session_state.career_chat_history = []
+                        st.rerun()
+
+            with st.expander("📋 Lihat Detail Lowongan", expanded=False):
+                detail = description or job_data.get("document", "") or meta.get("description", "Tidak ada deskripsi.")
+                st.markdown(detail)
+
+    # ═══════════════════════════════════════════════════════
+    # SECTION 1: DARI DATABASE (DATASET)
+    # ═══════════════════════════════════════════════════════
+    if st.session_state.job_matches:
+        dataset_count = len(st.session_state.job_matches)
+        internet_count = len(st.session_state.internet_jobs)
+        total_count = dataset_count + internet_count
+        st.markdown(f"### 📊 Dari Database — {dataset_count} Lowongan Cocok")
+
+        # Filters for dataset
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            min_score = st.slider("Minimum Match Score", 0, 100, 0, step=5)
+        with col_f2:
+            sort_order = st.selectbox("Urutkan", ["Tertinggi", "Terendah"])
+
+        filtered = [j for j in st.session_state.job_matches if j.get("similarity_score", 0) >= min_score]
+        filtered.sort(key=lambda x: x.get("similarity_score", 0), reverse=(sort_order == "Tertinggi"))
+
+        for idx, job in enumerate(filtered):
+            _render_selectable_card(job, f"select_ds_{idx}", source="Dataset")
+    else:
+        if st.session_state.cv_uploaded:
+            from vector_store import VectorStoreManager
+            vs_count = 0
+            try:
+                vs_count = VectorStoreManager().get_collection_count()
+            except Exception:
+                pass
+            cv_len = len(st.session_state.cv_text) if st.session_state.cv_text else 0
+            st.info(f"🔍 Belum ada hasil dari database. (Panjang CV: {cv_len} karakter, Jumlah lowongan di DB: {vs_count}).")
+            if st.button("🔄 Cari Ulang di Database"):
+                st.session_state.job_matches = []
+                st.rerun()
+
+    # ═══════════════════════════════════════════════════════
+    # SECTION 2: SARAN AI DARI BERBAGAI PLATFORM
+    # ═══════════════════════════════════════════════════════
+    st.markdown("---")
+    if st.session_state.internet_jobs:
+        st.markdown(f"### 🌐 Saran AI dari Berbagai Platform — {len(st.session_state.internet_jobs)} Rekomendasi")
+        st.caption("💡 Lowongan di bawah ini adalah rekomendasi AI berdasarkan analisis CV kamu. Klik link platform untuk melihat lowongan serupa yang sebenarnya.")
+
+        # Group by source
+        for source_name in ["LinkedIn", "JobStreet", "Google Jobs"]:
+            source_jobs = [j for j in st.session_state.internet_jobs if j.get("source") == source_name]
+            if source_jobs:
+                for idx, ijob in enumerate(source_jobs):
+                    _render_selectable_card(ijob, f"select_web_{source_name}_{idx}", source=source_name, description=ijob.get("description", ""))
+
+        # Quick links to real platforms
+        search_keyword = ""
+        if st.session_state.job_matches:
+            search_keyword = st.session_state.job_matches[0].get("metadata", {}).get("job_title", "")
+        elif st.session_state.internet_jobs:
+            search_keyword = st.session_state.internet_jobs[0].get("job_title", "")
+        if search_keyword:
+            encoded = urllib.parse.quote(search_keyword)
+            st.markdown("#### 🔗 Cari Langsung di Platform")
             col1, col2, col3 = st.columns(3)
-
             with col1:
-                st.markdown(
-                    f"""<div class="glass-card" style="text-align:center;">
-                        <h3>LinkedIn</h3>
-                        <p style="font-size:3rem;">💼</p>
-                        <a href="https://www.linkedin.com/jobs/search/?keywords={encoded}&location=Indonesia" 
-                           target="_blank" 
-                           style="color:var(--accent-blue); text-decoration:none; font-weight:600;">
-                            Cari di LinkedIn →
-                        </a>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
-
+                st.link_button("🔗 Buka LinkedIn", f"https://www.linkedin.com/jobs/search/?keywords={encoded}&location=Indonesia", use_container_width=True)
             with col2:
-                st.markdown(
-                    f"""<div class="glass-card" style="text-align:center;">
-                        <h3>JobStreet</h3>
-                        <p style="font-size:3rem;">🏢</p>
-                        <a href="https://www.jobstreet.co.id/id/job-search/{encoded}-jobs/" 
-                           target="_blank"
-                           style="color:var(--accent-emerald); text-decoration:none; font-weight:600;">
-                            Cari di JobStreet →
-                        </a>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
-
+                st.link_button("🏢 Buka JobStreet", f"https://www.jobstreet.co.id/id/job-search/{encoded}-jobs/", use_container_width=True)
             with col3:
-                st.markdown(
-                    f"""<div class="glass-card" style="text-align:center;">
-                        <h3>Google Jobs</h3>
-                        <p style="font-size:3rem;">🔍</p>
-                        <a href="https://www.google.com/search?q={encoded}+jobs+Indonesia&ibp=htl;jobs" 
-                           target="_blank"
-                           style="color:var(--accent-amber); text-decoration:none; font-weight:600;">
-                            Cari di Google →
-                        </a>
-                    </div>""",
-                    unsafe_allow_html=True,
-                )
+                st.link_button("🔍 Buka Google Jobs", f"https://www.google.com/search?q={encoded}+jobs+Indonesia&ibp=htl;jobs", use_container_width=True)
+    else:
+        st.info("🌐 Tidak ada saran lowongan dari internet. Pastikan OpenAI API key sudah diatur.")
+        if st.button("🔄 Cari Ulang Saran Internet"):
+            st.session_state.internet_jobs = []
+            st.rerun()
 
     # Navigation buttons
     st.markdown("---")
