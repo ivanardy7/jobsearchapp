@@ -339,46 +339,52 @@ with st.sidebar:
             go_to_step(4)
             st.rerun()
 
-    # Compact API & N8N Status badges
-    st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
+    # API & N8N Status configurations
     openai_ok = config.is_openai_configured()
     _use_n8n = config.USE_N8N or config._get_config("USE_N8N", "false").lower() == "true"
     n8n_ok = config.is_n8n_configured() if _use_n8n else True
 
-    openai_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔑 OpenAI: OK</span>' if openai_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔑 OpenAI: Err</span>'
+    openai_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔑 OpenAI: OK</span>' if openai_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔑 OpenAI: Err</span>'
     if _use_n8n:
-        n8n_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔗 N8N: OK</span>' if n8n_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔗 N8N: Err</span>'
+        n8n_badge = '<span style="background:rgba(79, 140, 140, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#4F8C8C; font-weight:600; border: 1px solid rgba(79,140,140,0.2);">🔗 N8N: OK</span>' if n8n_ok else '<span style="background:rgba(217, 119, 6, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#d97706; font-weight:600; border: 1px solid rgba(217,119,6,0.2);">🔗 N8N: Err</span>'
     else:
-        n8n_badge = '<span style="background:rgba(140, 140, 140, 0.12); padding:3px 6px; border-radius:6px; font-size:0.72rem; color:#8c8277; font-weight:600; border: 1px solid rgba(140,140,140,0.2);">🏠 Local Mode</span>'
+        n8n_badge = '<span style="background:rgba(140, 140, 140, 0.12); padding:4px 8px; border-radius:6px; font-size:0.72rem; color:#8c8277; font-weight:600; border: 1px solid rgba(140,140,140,0.2);">🏠 Local Mode</span>'
 
-    st.markdown(
-        f"""<div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 2px;">
-            {openai_badge}
-            {n8n_badge}
-        </div>""",
-        unsafe_allow_html=True
-    )
-
-    # Compact User Profile & Logout
-    if st.user.is_logged_in:
-        st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
-        user_name = st.user.get("name", st.user.get("email", "User"))
-        
-        col_prof_1, col_prof_2 = st.columns([1.7, 1])
-        with col_prof_1:
-            st.markdown(f'<div style="font-weight: 700; font-size: 0.8rem; color: var(--text-primary); padding-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{user_name}">👤 {user_name}</div>', unsafe_allow_html=True)
-        with col_prof_2:
-            if st.button("🚪 Out", use_container_width=True, type="secondary", key="logout_btn", help="Log Out"):
-                st.logout()
+    # Unified footer card for Status & User profile to clean up layout
+    user_name = st.user.get("name", st.user.get("email", "User")) if st.user.is_logged_in else None
+    
+    if user_name:
+        st.markdown(
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 12px; margin-top: 25px; margin-bottom: 8px;">
+                <div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 10px;">
+                    {openai_badge}
+                    {n8n_badge}
+                </div>
+                <div style="border-top: 1.5px solid rgba(79, 140, 140, 0.12); padding-top: 8px; font-weight: 700; font-size: 0.82rem; color: var(--text-primary);">
+                    👤 {user_name}
+                </div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+        if st.button("🚪 Log Out", use_container_width=True, type="secondary", key="logout_btn"):
+            st.logout()
+            
     elif st.session_state.bypass_login:
-        st.markdown("<hr style='margin: 8px 0;'>", unsafe_allow_html=True)
-        col_prof_1, col_prof_2 = st.columns([1.7, 1])
-        with col_prof_1:
-            st.markdown('<div style="font-weight: 700; font-size: 0.8rem; color: #d97706; padding-top: 5px;">🛠️ Dev Mode</div>', unsafe_allow_html=True)
-        with col_prof_2:
-            if st.button("🚪 Out", use_container_width=True, type="secondary", key="dev_logout_btn", help="Kembali ke Login"):
-                st.session_state.bypass_login = False
-                st.rerun()
+        st.markdown(
+            f"""<div style="background-color: rgba(79, 140, 140, 0.05); border: 1px solid rgba(79, 140, 140, 0.15); border-radius: 12px; padding: 12px; margin-top: 25px; margin-bottom: 8px;">
+                <div style="display:flex; justify-content:space-between; gap:4px; margin-bottom: 10px;">
+                    {openai_badge}
+                    {n8n_badge}
+                </div>
+                <div style="border-top: 1.5px solid rgba(79, 140, 140, 0.12); padding-top: 8px; font-weight: 700; font-size: 0.82rem; color: #d97706;">
+                    🛠️ Developer Mode
+                </div>
+            </div>""",
+            unsafe_allow_html=True
+        )
+        if st.button("🚪 Kembali ke Login", use_container_width=True, type="secondary", key="dev_logout_btn"):
+            st.session_state.bypass_login = False
+            st.rerun()
 
 # ═══════════════════════════════════════════════════════════
 # STEP A: INPUT CV
