@@ -321,8 +321,8 @@ def export_cv_to_docx(cv_text: str) -> bytes:
                 pPr.append(pBdr)
             except Exception:
                 p.add_run("____________________________________________________")
-        elif line.startswith("- ") or line.startswith("• "):
-            clean = line.lstrip("-•").strip()
+        elif line.startswith("- ") or line.startswith("• ") or line.startswith("* "):
+            clean = line[2:].strip()
             add_markdown_paragraph(clean, paragraph_style="List Bullet", space_after=Pt(3))
         else:
             add_markdown_paragraph(line, space_after=Pt(4))
@@ -352,10 +352,21 @@ def export_cv_to_pdf(cv_text: str) -> bytes:
         "CVHeading",
         parent=styles["Heading2"],
         fontSize=12,
-        spaceAfter=2,
-        spaceBefore=12,
+        spaceAfter=4,
+        spaceBefore=14,
         textColor=colors.HexColor("#111111"),
         fontName="Helvetica-Bold",
+        keepWithNext=True,
+    )
+    subheading_style = ParagraphStyle(
+        "CVSubHeading",
+        parent=styles["Normal"],
+        fontSize=10.5,
+        spaceAfter=3,
+        spaceBefore=8,
+        textColor=colors.HexColor("#111111"),
+        fontName="Helvetica-Bold",
+        keepWithNext=True,
     )
     body_style = ParagraphStyle(
         "CVBody",
@@ -384,6 +395,7 @@ def export_cv_to_pdf(cv_text: str) -> bytes:
         textColor=colors.HexColor("#111111"),
         fontName="Helvetica-Bold",
         spaceAfter=4,
+        keepWithNext=True,
     )
     contact_style = ParagraphStyle(
         "CVContact",
@@ -439,9 +451,13 @@ def export_cv_to_pdf(cv_text: str) -> bytes:
                 spaceBefore=1, 
                 spaceAfter=8
             ))
-        elif line.startswith("- ") or line.startswith("• "):
-            clean = line.lstrip("-•").strip()
-            elements.append(Paragraph(md_to_pdf_html(clean), bullet_style))
+        # Detect bold subheadings (like company name or subheads ending with colon)
+        elif (line.startswith("**") and line.endswith("**")) or (line.startswith("**") and line.endswith(":")) or (not line.startswith("- ") and not line.startswith("• ") and not line.startswith("* ") and line.endswith(":")):
+            clean = line.replace("**", "")
+            elements.append(Paragraph(md_to_pdf_html(clean), subheading_style))
+        elif line.startswith("- ") or line.startswith("• ") or line.startswith("* "):
+            clean = line[2:].strip()
+            elements.append(Paragraph(f"&bull; {md_to_pdf_html(clean)}", bullet_style))
         else:
             elements.append(Paragraph(md_to_pdf_html(line), body_style))
 
