@@ -8,7 +8,6 @@ import requests
 import json
 import config
 
-
 def call_n8n_webhook(endpoint: str, data: dict, timeout: int = 120) -> dict:
     """
     Send a POST request to an N8N webhook endpoint.
