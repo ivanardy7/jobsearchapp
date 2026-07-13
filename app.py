@@ -687,22 +687,7 @@ elif st.session_state.current_step == 1:
                 for idx, ijob in enumerate(source_jobs):
                     _render_selectable_card(ijob, f"select_web_{source_name}_{idx}", source=source_name, description=ijob.get("description", ""))
 
-        # Quick links to real platforms
-        search_keyword = ""
-        if st.session_state.job_matches:
-            search_keyword = st.session_state.job_matches[0].get("metadata", {}).get("job_title", "")
-        elif st.session_state.internet_jobs:
-            search_keyword = st.session_state.internet_jobs[0].get("job_title", "")
-        if search_keyword:
-            encoded = urllib.parse.quote(search_keyword)
-            st.markdown("#### 🔗 Cari Langsung di Platform")
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.link_button("🔗 Buka LinkedIn", f"https://www.linkedin.com/jobs/search/?keywords={encoded}&location=Indonesia", use_container_width=True)
-            with col2:
-                st.link_button("🏢 Buka JobStreet", f"https://www.jobstreet.co.id/id/job-search/{encoded}-jobs/", use_container_width=True)
-            with col3:
-                st.link_button("🔍 Buka Google Jobs", f"https://www.google.com/search?q={encoded}+jobs+Indonesia&ibp=htl;jobs", use_container_width=True)
+
     else:
         st.info("🌐 Tidak ada saran lowongan dari internet. Pastikan OpenAI API key sudah diatur.")
         if st.button("🔄 Cari Ulang Saran Internet"):
