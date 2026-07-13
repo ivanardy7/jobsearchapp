@@ -45,10 +45,6 @@ N8N_WEBHOOK_URL = _get_config("N8N_WEBHOOK_URL", "")
 USE_N8N = _get_config("USE_N8N", "false").lower() == "true"
 
 
-# ─── Dataset ──────────────────────────────────────────────
-DATASET_PATH = BASE_DIR / "Dataset" / "jobs.jsonl"
-DATA_DIR = BASE_DIR / "data"
-
 # ─── App Settings ─────────────────────────────────────────
 MAX_UPLOAD_SIZE_MB = 100
 SUPPORTED_CV_FORMATS = [".pdf", ".docx", ".doc"]
@@ -78,7 +74,3 @@ def is_n8n_configured() -> bool:
         url = _get_config("N8N_WEBHOOK_URL", "")
     return use and bool(url)
 
-
-def ensure_data_dir():
-    """Create data directory if it doesn't exist."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)

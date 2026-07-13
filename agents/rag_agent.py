@@ -100,11 +100,3 @@ Berikan analisis singkat:
 
     return result
 
-
-def search_jobs_by_query(query: str, top_k: int = 10) -> list[dict]:
-    """
-    Search jobs by natural language query.
-    Returns list of matching jobs with similarity scores.
-    """
-    vs = VectorStoreManager()
-    return vs.search_similar_jobs(query, top_k=top_k)
