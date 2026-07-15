@@ -394,6 +394,7 @@ if st.session_state.current_step == 0:
             help="Format yang didukung: PDF, DOCX. Maksimum 100MB.",
             key="cv_uploader",
         )
+        st.warning("⚠️ **Catatan penting:** Pastikan file PDF CV Anda dapat diblok/disalin teksnya secara langsung (bukan hasil scan/gambar). PDF hasil scan akan menyebabkan teks gagal terbaca, sehingga analisis dan CV ATS yang digenerate menjadi tidak sesuai.")
 
         if uploaded_file is not None:
             file_bytes = uploaded_file.getvalue()
@@ -513,6 +514,8 @@ elif st.session_state.current_step == 1:
         </div>""",
         unsafe_allow_html=True,
     )
+
+    st.info("💡 **Catatan Match Score:** Persentase Match Score mengukur tingkat kemiripan (similarity) data/pengalaman dalam CV Anda dengan deskripsi serta kualifikasi posisi lowongan yang tersedia.")
 
     # ── Run Dataset matching if not done yet ──
     if not st.session_state.job_matches:
@@ -759,12 +762,22 @@ elif st.session_state.current_step == 2:
         else:
             # 1. Display Feedback & Recommendations
             st.markdown("### 📊 Hasil Feedback & Saran CV")
+            st.info(
+                "💡 **Apa itu ATS Score?**\n\n"
+                "**ATS (Applicant Tracking System) Score** adalah indikator penilaian seberapa baik CV Anda dipindai, dianalisis, dan dicocokkan dengan kriteria pekerjaan oleh sistem otomatis rekrutmen. \n\n"
+                "**Catatan Hasil ATS Score Anda:**\n"
+                "- **>= 70%**: CV Anda sudah sangat baik dan siap bersaing di sistem ATS.\n"
+                "- **50% - 69%**: CV Anda cukup baik, namun memerlukan penyesuaian kata kunci (keywords) agar lebih optimal.\n"
+                "- **< 50%**: CV Anda perlu direvisi secara signifikan, terutama struktur dan penyelarasan skill dengan posisi yang dilamar.\n\n"
+                "Gunakan saran perbaikan di bawah atau klik **Generate CV ATS** untuk memperbaikinya secara otomatis."
+            )
             st.markdown(st.session_state.cv_feedback)
             
             st.markdown("---")
             
             # 2. Display ATS Generator Area (Follows the feedback section)
             st.markdown("### 📝 Optimasi CV ke ATS-Friendly")
+            st.warning("⚠️ **Catatan penting:** Jika file CV asli Anda adalah PDF hasil scan/gambar (teks tidak bisa diblok), informasi yang dihasilkan di bawah ini tidak akan sesuai dengan CV asli Anda karena AI gagal mendeteksi teksnya secara benar.")
             
             if st.session_state.ats_cv_text is None:
                 st.markdown(
