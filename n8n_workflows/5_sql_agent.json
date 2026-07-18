@@ -1,5 +1,5 @@
 {
-  "name": "6 - SQL Agent",
+  "name": "5 - SQL Agent",
   "nodes": [
     {
       "parameters": {
@@ -184,7 +184,7 @@
         ]
       ]
     }
-  },
+  ],
   "settings": {
     "executionOrder": "v1"
   },

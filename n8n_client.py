@@ -109,38 +109,6 @@ def career_chat_n8n(cv_text: str, chat_history: list[dict], user_message: str, t
     return result.get("output") or result.get("text") or result.get("response") or result.get("error", "")
 
 
-def start_interview_n8n(cv_text: str, job_info: dict) -> str:
-    """
-    Call N8N to start a mock interview session.
-    Returns the AI interviewer's first question.
-    """
-    result = call_n8n_webhook("/webhook/mock-interview", {
-        "action": "start",
-        "cv_text": cv_text[:3000],
-        "job_title": job_info.get("job_title", ""),
-        "company_name": job_info.get("company_name", ""),
-        "job_description": job_info.get("job_description", "")[:2000],
-    })
-    return result.get("output") or result.get("text") or result.get("response") or result.get("error", "")
-
-
-def continue_interview_n8n(cv_text: str, job_info: dict, interview_history: list[dict], user_answer: str) -> str:
-    """
-    Call N8N to continue a mock interview with user's answer.
-    Returns the AI interviewer's feedback + next question.
-    """
-    result = call_n8n_webhook("/webhook/mock-interview", {
-        "action": "continue",
-        "cv_text": cv_text[:2000],
-        "job_title": job_info.get("job_title", ""),
-        "company_name": job_info.get("company_name", ""),
-        "job_description": job_info.get("job_description", "")[:1000],
-        "interview_history": interview_history,
-        "user_answer": user_answer,
-    })
-    return result.get("output") or result.get("text") or result.get("response") or result.get("error", "")
-
-
 def generate_sql_query_n8n(natural_language_query: str) -> str:
     """
     Call N8N to convert natural language to SQL query.
