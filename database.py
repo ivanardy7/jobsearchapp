@@ -1,5 +1,5 @@
 """
-Database module — SQLite/MySQL query manager using SQLAlchemy.
+Database module — Aiven MySQL database query manager using SQLAlchemy.
 Handles structured job data queries (filters, stats, etc.)
 """
 
@@ -62,32 +62,28 @@ def parse_salary(salary_str: str) -> tuple[Optional[float], Optional[float]]:
 
 
 class DatabaseManager:
-    """Manages SQLite/MySQL database connections and queries."""
+    """Manages Aiven MySQL database connections and queries."""
 
     def __init__(self, db_url: Optional[str] = None):
         self.db_url = db_url or config.DATABASE_URL or config._get_config("DATABASE_URL", "")
         
-        # Format URL for MySQL and add SSL if necessary
-        if self.db_url.startswith("mysql"):
-            # Ensure pymysql driver is used
-            if not self.db_url.startswith("mysql+pymysql://"):
-                self.db_url = self.db_url.replace("mysql://", "mysql+pymysql://")
+        # Ensure pymysql driver is used
+        if not self.db_url.startswith("mysql+pymysql://"):
+            self.db_url = self.db_url.replace("mysql://", "mysql+pymysql://")
+        
+        # Remove any query parameters (like ?ssl-mode=REQUIRED) which can break PyMySQL
+        if "?" in self.db_url:
+            self.db_url = self.db_url.split("?")[0]
+        
+        # Aiven MySQL requires SSL
+        # Check if ca.pem exists in either aiven/ca.pem or data/ca.pem
+        import os
+        ca_path = "aiven/ca.pem"
+        if not os.path.exists(ca_path):
+            ca_path = "data/ca.pem"
             
-            # Remove any query parameters (like ?ssl-mode=REQUIRED) which can break PyMySQL
-            if "?" in self.db_url:
-                self.db_url = self.db_url.split("?")[0]
-            
-            # Aiven MySQL requires SSL
-            # Check if ca.pem exists in either aiven/ca.pem or data/ca.pem
-            import os
-            ca_path = "aiven/ca.pem"
-            if not os.path.exists(ca_path):
-                ca_path = "data/ca.pem"
-                
-            ssl_args = {"ssl": {"ssl_ca": ca_path}}
-            self.engine = create_engine(self.db_url, connect_args=ssl_args, echo=False)
-        else:
-            self.engine = create_engine(self.db_url, echo=False)
+        ssl_args = {"ssl": {"ssl_ca": ca_path}}
+        self.engine = create_engine(self.db_url, connect_args=ssl_args, echo=False)
             
         self.Session = sessionmaker(bind=self.engine)
 
