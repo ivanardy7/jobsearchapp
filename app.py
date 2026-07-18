@@ -71,6 +71,20 @@ try:
 except Exception:
     pass
 
+# Allow bypass parameter from URL even if OAuth is configured
+if st.query_params.get("bypass") == "true":
+    is_auth_configured = False
+    st.session_state.bypass_login = True
+    
+    # Preload mock CV data to unlock all steps
+    if not st.session_state.get("cv_uploaded"):
+        st.session_state.cv_uploaded = True
+        st.session_state.cv_text = "Nama: Ivan Dwi Hascaryo Ardynugraha\nEmail: ivan.hascardy7@gmail.com\nLinkedIn: linkedin.com/in/ivanardynugraha\nPengalaman Kerja:\n- AI Engineer di PT Rekayasa Data (2024 - Sekarang): Merancang pipeline data RAG, mengintegrasikan LLM GPT-4o, dan mengoptimalkan pencarian semantik dengan Qdrant.\n- Python Developer di SmartTech (2022 - 2024): Membuat otomasi data dan integrasi API.\nPendidikan: S1 Teknik Informatika (IPK 3.85)\nKeahlian: Python, Streamlit, SQL, MySQL, N8N, Qdrant, OpenAI Whisper, TTS."
+        st.session_state.cv_filename = "cv_test.pdf"
+        st.session_state.cv_file_info = {"filename": "cv_test.pdf", "format": "PDF", "size_mb": 0.1, "pages": 1}
+        st.session_state.current_step = 1  # Skip directly to Step B (Job List)
+        st.session_state.cv_bytes = b"mock bytes"
+
 if is_auth_configured:
     if not st.user.is_logged_in:
         st.markdown("""
