@@ -676,14 +676,12 @@ div[data-testid="stForm"] button[kind="formSubmit"] {
 }
 
 /* ── Fix File Uploader: Override "200MB" label to "100MB" ── */
-[data-testid="stFileUploader"] section > div > div > span,
-[data-testid="stFileUploader"] span:not(button *) {
+[data-testid="stFileUploader"] section > div:last-child > div > span {
     font-size: 0 !important;
     line-height: 0 !important;
     color: transparent !important;
 }
-[data-testid="stFileUploader"] section > div > div > span::after,
-[data-testid="stFileUploader"] span:not(button *)::after {
+[data-testid="stFileUploader"] section > div:last-child > div > span::after {
     content: "100MB per file · PDF, DOCX, DOC" !important;
     font-size: 0.875rem !important;
     line-height: normal !important;
