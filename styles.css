@@ -676,16 +676,17 @@ div[data-testid="stForm"] button[kind="formSubmit"] {
 }
 
 /* ── Fix File Uploader: Override "200MB" label to "100MB" ── */
-/* Target both <small> (older Streamlit) and <span> (Streamlit 1.51+) */
-[data-testid="stFileUploader"] small,
-[data-testid="stFileUploadDropzone"] > div > div > span {
+[data-testid="stFileUploader"] section > div > div > span,
+[data-testid="stFileUploader"] span:not(button *) {
     font-size: 0 !important;
     line-height: 0 !important;
+    color: transparent !important;
 }
-[data-testid="stFileUploader"] small::after,
-[data-testid="stFileUploadDropzone"] > div > div > span::after {
-    content: "100MB per file · PDF, DOCX, DOC";
-    font-size: 0.875rem;
-    line-height: normal;
-    color: var(--text-secondary, #64748b);
+[data-testid="stFileUploader"] section > div > div > span::after,
+[data-testid="stFileUploader"] span:not(button *)::after {
+    content: "100MB per file · PDF, DOCX, DOC" !important;
+    font-size: 0.875rem !important;
+    line-height: normal !important;
+    color: var(--text-secondary, #64748b) !important;
+    display: inline-block !important;
 }
