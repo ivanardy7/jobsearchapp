@@ -674,3 +674,13 @@ div[data-testid="stForm"] button[kind="formSubmit"] {
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.02);
 }
+
+/* ── Fix File Uploader: Override "200MB" label to "100MB" ── */
+[data-testid="stFileUploader"] small {
+    font-size: 0 !important;     /* Hide the original text */
+}
+[data-testid="stFileUploader"] small::after {
+    content: "100MB per file · PDF, DOCX, DOC";
+    font-size: 0.875rem;         /* Restore readable size */
+    color: var(--text-secondary);
+}
