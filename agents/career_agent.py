@@ -41,6 +41,51 @@ Jika user bertanya atau meminta hal yang JELAS DI LUAR topik karir dan pengemban
 CATATAN: Jangan terlalu kaku. Jika pertanyaan user MASIH BISA dikaitkan dengan konteks karir atau pengembangan profesional (meskipun tidak langsung), tetap jawab dengan perspektif karir."""
 
 
+def is_career_related(user_message: str) -> bool:
+    """
+    Check if the user message is related to career consultation or professional development.
+    Returns True if it is on-topic, False if off-topic.
+    """
+    # If OpenAI is not configured, we pass through to avoid breaking the application
+    if not config.is_openai_configured():
+        return True
+        
+    classification_prompt = """Klasifikasikan apakah pesan dari user berkaitan dengan konsultasi karir, pengembangan profesional, tips resume/CV, persiapan wawancara, bimbingan karir, pencarian lowongan kerja, atau percakapan sapaan umum (seperti halo, terima kasih, dll.).
+
+Kriteria kategori karir/dunia kerja (JAWAB YES):
+- Diskusi karir, cita-cita, rencana profesional, ganti profesi, startup, bisnis.
+- Analisis keahlian (skills), sertifikasi, training, kursus, roadmap belajar.
+- Tips resume, portfolio, cover letter, filter ATS.
+- Tips interview, cara menjawab wawancara, negosiasi gaji, penawaran kontrak.
+- Tren industri, lowongan kerja, info pasar kerja, LinkedIn, tips melamar.
+- Kata sapaan/penutup umum (seperti: halo, pagi, thanks, oke, selamat tinggal).
+
+Kriteria kategori di luar karir (JAWAB NO):
+- Meminta kode program / coding (misalnya: "buatkan kode python", "bikin script css", "coding java", "fungsi eksponensial").
+- Soal matematika, kimia, fisika, sejarah, geografi, atau ilmu umum non-karir.
+- Meminta resep masakan, menulis cerita fiksi, puisi, lelucon umum.
+- Topik umum lainnya yang tidak ada sangkut pautnya dengan pengembangan karir atau dunia profesional.
+
+Jawab HANYA dengan satu kata: "YES" atau "NO"."""
+
+    try:
+        client = OpenAI(api_key=config.get_openai_api_key())
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": classification_prompt},
+                {"role": "user", "content": user_message}
+            ],
+            temperature=0.0,
+            max_tokens=5,
+        )
+        answer = response.choices[0].message.content.strip().upper()
+        return "YES" in answer
+    except Exception:
+        # Fallback to True on any error to prevent blocking user in case of API failure
+        return True
+
+
 def get_career_response(
     cv_text: str,
     chat_history: list[dict],
@@ -60,6 +105,17 @@ def get_career_response(
     - "response": AI response text
     - "available": whether AI service is configured
     """
+    # 1. Run local guardrail check to block off-topic questions (math, coding, recipes)
+    if not is_career_related(user_message):
+        return {
+            "response": (
+                "Wah, pertanyaan itu di luar area keahlian saya sebagai konsultan karir 😊. "
+                "Saya di sini khusus untuk membantu kamu soal perencanaan karir, skill development, "
+                "dan persiapan kerja. Ada hal lain seputar karir yang ingin kamu diskusikan?"
+            ),
+            "available": True
+        }
+
     # Check if we should route to N8N (only for non-database questions)
     use_n8n_path = config.is_n8n_configured()
     if use_n8n_path:
